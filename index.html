@@ -462,6 +462,13 @@
       <h2>Update Required</h2>
       <p>A new version of the app is available. Please restart the bot to get the latest updates.</p>
   </div>
+  <!-- ********** নতুন HTML শুরু ********** -->
+  <div class="system-overlay" id="maintenance-overlay" style="display: none;">
+      <i class="fa-solid fa-screwdriver-wrench" style="color: var(--status-task);"></i>
+      <h2>Under Maintenance</h2>
+      <p>The app is currently undergoing maintenance. Please check back later.</p>
+  </div>
+  <!-- ********** নতুন HTML শেষ ********** -->
 
   <div class="container" style="display: none;">
     <div id="announcement-banner-container"></div>
@@ -668,7 +675,6 @@
     import { getDatabase, ref, onValue, set, get, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     // --- Firebase Configuration ---
-    // TODO: আপনার নিজের Firebase কনফিগারেশন এখানে যোগ করুন
     const firebaseConfig = {
     apiKey: "AIzaSyCbn7guUOGkxNqyZSg6MQzw4tBFQykwzis",
     authDomain: "genius-earning-app.firebaseapp.com",
@@ -698,8 +704,9 @@
     
     // --- Constants ---
     const POINTS_PER_BDT = 100;
-    const hourlyAdsLimit = 25; 
-    const minReferralsForWithdrawal = 3; 
+    // নিচে থাকা ভ্যারিয়েবলগুলো এখন আর ধ্রুবক (const) নয়, কারণ এগুলো Firebase থেকে লোড হবে।
+    // const hourlyAdsLimit = 25; 
+    // const minReferralsForWithdrawal = 3; 
 
     document.addEventListener('DOMContentLoaded', () => { initApp(); });
 
@@ -724,6 +731,16 @@
             if (snapshot.exists()) {
                 appConfig = snapshot.val();
                 console.log("Firebase config loaded:", appConfig);
+
+                // ********** নতুন পরিবর্তন শুরু **********
+                // মেইনটেন্যান্স মোড চেক করা
+                if (appConfig.maintenanceMode) {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    document.getElementById('maintenance-overlay').style.display = 'flex';
+                    // মেইনটেন্যান্স মোড চালু থাকলে আর কিছু লোড হবে না
+                    return; 
+                }
+                // ********** নতুন পরিবর্তন শেষ **********
 
                 if (!isConfigLoaded) {
                     isConfigLoaded = true;
@@ -890,6 +907,10 @@
         document.getElementById('home-total-commission').textContent = `${userData.totalReferralCommission || 0} Points`;
         
         const dailyAdsLimit = appConfig.adsLimit || 250;
+        // ********** নতুন পরিবর্তন শুরু **********
+        const hourlyLimit = appConfig.hourlyAdsLimit || 25; // অ্যাডমিন প্যানেল থেকে ঘণ্টাভিত্তিক সীমা লোড করা
+        // ********** নতুন পরিবর্তন শেষ **********
+
         const adTracking = userData.adTracking?.monetag || { dailyCount: 0, hourlyCount: 0 };
         document.querySelectorAll('.ad-network-card').forEach(card => {
             const watchButton = card.querySelector(`.watch-ad-button`);
@@ -897,12 +918,12 @@
                 card.querySelector(`.tasks-completed-daily`).textContent = adTracking.dailyCount;
                 card.querySelector(`.tasks-remaining-daily`).textContent = dailyAdsLimit - adTracking.dailyCount;
                 card.querySelector(`.progress-bar-inner`).style.width = `${(adTracking.dailyCount / dailyAdsLimit) * 100}%`;
-                card.querySelector(`.hourly-limit-value`).textContent = `${adTracking.hourlyCount}/${hourlyAdsLimit}`;
+                card.querySelector(`.hourly-limit-value`).textContent = `${adTracking.hourlyCount}/${hourlyLimit}`; // এখানে hourlyLimit ব্যবহৃত হয়েছে
                 card.querySelector(`.daily-limit-value`).textContent = `${adTracking.dailyCount}/${dailyAdsLimit}`;
 
                 if (adTracking.dailyCount >= dailyAdsLimit) {
                     watchButton.disabled = true; watchButton.innerHTML = `<i class="fa-solid fa-check"></i> Daily Limit`;
-                } else if (adTracking.hourlyCount >= hourlyAdsLimit) {
+                } else if (adTracking.hourlyCount >= hourlyLimit) { // এখানে hourlyLimit ব্যবহৃত হয়েছে
                     watchButton.disabled = true; watchButton.innerHTML = `<i class="fa-solid fa-clock"></i> Hourly Limit`;
                 } else {
                     watchButton.disabled = false; watchButton.innerHTML = `<i class="fa-solid fa-play-circle"></i> Watch Ad & Earn`;
@@ -960,9 +981,14 @@
     // --- All Earning Functions ---
 
     window.startAdCycleFor = (network) => {
+        // ********** নতুন পরিবর্তন শুরু **********
         const dailyAdsLimit = appConfig.adsLimit || 250;
+        const hourlyLimit = appConfig.hourlyAdsLimit || 25;
+        const adTimerSeconds = appConfig.adWatchTimerSeconds || 30;
+        // ********** নতুন পরিবর্তন শেষ **********
+
         const adTracking = userData.adTracking?.monetag || { dailyCount: 0, hourlyCount: 0 };
-        if (adTracking.dailyCount >= dailyAdsLimit || adTracking.hourlyCount >= hourlyAdsLimit) return;
+        if (adTracking.dailyCount >= dailyAdsLimit || adTracking.hourlyCount >= hourlyLimit) return;
 
         const overlay = document.getElementById('timer-notification-overlay');
         const overlayContent = document.getElementById('timer-notification-content');
@@ -970,7 +996,7 @@
         show_9794133().catch(e => console.error("Monetag Ad SDK error:", e));
 
         overlay.style.display = 'flex';
-        let countdown = 30;
+        let countdown = adTimerSeconds; // ডাইনামিক টাইমার ব্যবহার
         overlayContent.innerHTML = `<div class="icon"><i class="fa-solid fa-hourglass-half"></i></div><div>${countdown}</div>`;
 
         const intervalId = setInterval(() => {
@@ -985,7 +1011,7 @@
             const rewardPoints = (appConfig.adsReward || 1) * POINTS_PER_BDT;
             overlayContent.innerHTML = `<div class="icon" style="color: var(--status-success);"><i class="fa-solid fa-check-circle"></i></div><div>+${rewardPoints} Points!</div>`;
             setTimeout(() => { overlay.style.display = 'none'; }, 2500);
-        }, 30000);
+        }, adTimerSeconds * 1000); // ডাইনামিক টাইমারের সময় ব্যবহার
     };
 
     function renderCheckinDays() {
@@ -1055,7 +1081,11 @@
     function renderAdNetworks() {
         const container = document.getElementById('ad-networks-container');
         if (!container || !appConfig.adNetworksEnabled || !appConfig.adNetworks) return container.innerHTML = "";
-
+        
+        // ********** নতুন পরিবর্তন শুরু **********
+        const hourlyLimit = appConfig.hourlyAdsLimit || 25; // এখানেও লোড করা হলো, যেন রেন্ডারিং সঠিক হয়
+        // ********** নতুন পরিবর্তন শেষ **********
+        
         container.innerHTML = appConfig.adNetworks.filter(n => n.enabled).map(network => `
             <div class="ad-network-card">
                  <a href="#" class="earn-option-card" onclick="event.preventDefault(); document.querySelector('.watch-ad-button[data-network=\\'${network.name}\\']').click();">
@@ -1071,7 +1101,7 @@
                     </div>
                     <div class="progress-bar"><div class="progress-bar-inner"></div></div>
                     <div class="limits-grid">
-                        <div class="limit-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><h3 class="value hourly-limit-value">0/${hourlyAdsLimit}</h3><p class="label">Hourly Limit</p></div>
+                        <div class="limit-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><h3 class="value hourly-limit-value">0/${hourlyLimit}</h3><p class="label">Hourly Limit</p></div>
                         <div class="limit-card"><div class="icon"><i class="fa-solid fa-calendar-day"></i></div><h3 class="value daily-limit-value">0/${appConfig.adsLimit || 250}</h3><p class="label">Daily Limit</p></div>
                     </div>
                     <button class="action-button primary-button watch-ad-button" data-network="${network.name}" onclick="window.startAdCycleFor('${network.name}')">
@@ -1149,7 +1179,12 @@
     window.requestWithdraw = async () => {
         const minWithdraw = appConfig.minWithdraw || 500;
         const currencySymbol = appConfig.currency || 'BDT';
-        if ((userData.referralsList ? Object.keys(userData.referralsList).length : 0) < minReferralsForWithdrawal) return alert(`Minimum ${minReferralsForWithdrawal} referrals required.`);
+        // ********** নতুন পরিবর্তন শুরু **********
+        const minReferrals = appConfig.minReferralsForWithdrawal || 3;
+        if ((userData.referralsList ? Object.keys(userData.referralsList).length : 0) < minReferrals) {
+            return alert(`Minimum ${minReferrals} referrals required for withdrawal.`);
+        }
+        // ********** নতুন পরিবর্তন শেষ **********
         
         const balanceInBdt = (userData.balance || 0) / POINTS_PER_BDT;
         if (balanceInBdt < minWithdraw) return alert(`Minimum ${currencySymbol} ${minWithdraw.toFixed(2)} balance required.`);
@@ -1183,19 +1218,28 @@
         const currencySymbol = appConfig.currency || 'BDT';
         const historyItems = Object.entries(userData.transactionHistory || {}).sort(([,a],[,b]) => new Date(b.date) - new Date(a.date));
 
-        if (historyItems.length === 0) return container.innerHTML = `<div class="no-history">...</div>`;
+        if (historyItems.length === 0) return container.innerHTML = `<div class="no-history"><i class="fa-solid fa-folder-open"></i><p>No history yet.</p></div>`;
 
         container.innerHTML = historyItems.map(([key, item]) => {
             let dateStr = new Date(item.date).toLocaleString('en-GB');
-            if (item.type === 'withdrawal') {
-                return `<div class="history-item withdrawal"><div class="icon-wrapper"><i class="fa-solid fa-arrow-down"></i></div><div class="history-item-info"><span class="title">Withdraw via ${item.method}</span><span class="details">${item.number} &bull; ${dateStr}</span></div><div class="amount-wrapper"><span class="amount">-${currencySymbol} ${item.amount.toFixed(2)}</span><span class="status status-${item.status.toLowerCase()}">${item.status}</span></div></div>`;
+            let iconClass;
+            switch(item.type) {
+                case 'earning': iconClass = 'fa-solid fa-play'; break;
+                case 'withdrawal': iconClass = 'fa-solid fa-arrow-down'; break;
+                case 'referral': iconClass = 'fa-solid fa-users'; break;
+                case 'login': iconClass = 'fa-solid fa-calendar-check'; break;
+                case 'task': iconClass = 'fa-solid fa-tasks'; break;
+                default: iconClass = 'fa-solid fa-question'; break;
             }
-            // Other types...
+
+            if (item.type === 'withdrawal') {
+                return `<div class="history-item withdrawal"><div class="icon-wrapper"><i class="${iconClass}"></i></div><div class="history-item-info"><span class="title">Withdraw via ${item.method}</span><span class="details">${item.number} &bull; ${dateStr}</span></div><div class="amount-wrapper"><span class="amount">-${currencySymbol} ${item.amount.toFixed(2)}</span><span class="status status-${item.status.toLowerCase()}">${item.status}</span></div></div>`;
+            }
+            
             let amountStr = item.amount || 0;
-            return `<div class="history-item ${item.type}"><div class="icon-wrapper"><i class="fa-solid fa-check"></i></div><div class="history-item-info"><span class="title">${item.title}</span><span class="details">${dateStr}</span></div><div class="amount-wrapper"><span class="amount">+${amountStr} Points</span></div></div>`;
+            return `<div class="history-item ${item.type}"><div class="icon-wrapper"><i class="${iconClass}"></i></div><div class="history-item-info"><span class="title">${item.title}</span><span class="details">${dateStr}</span></div><div class="amount-wrapper"><span class="amount">+${amountStr} Points</span></div></div>`;
         }).join('');
         
-        // Update statuses from the central list
         const userWithdrawals = Object.entries(await get(withdrawRequestsRef).then(s=>s.val()||{})).filter(([,w])=>w.userId === tgUser.id);
         historyItems.forEach(([key, item]) => {
            if(item.type === 'withdrawal'){
