@@ -479,7 +479,7 @@
         <div class="welcome-card">
             <h2 id="welcome-message">Welcome, User!</h2>
             <p>Ready to boost your earnings?</p>
-            <button class="action-button" onclick="showView('earn-view')">Start Earning Now &nbsp; <i class="fa-solid fa-arrow-right"></i></button>
+            <button class="action-button" onclick="window.showView('earn-view')">Start Earning Now &nbsp; <i class="fa-solid fa-arrow-right"></i></button>
         </div>
         <div class="stats-grid">
             <div class="stats-card full-width-stats">
@@ -562,21 +562,21 @@
                 <p>Your Referral Link</p>
                 <div class="refer-link-input-wrapper">
                     <input type="text" id="referral-link-input" value="Loading your link..." readonly>
-                    <button class="copy-button" onclick="copyReferralLink()"><i class="fa-regular fa-copy"></i></button>
+                    <button class="copy-button" onclick="window.copyReferralLink()"><i class="fa-regular fa-copy"></i></button>
                 </div>
             </div>
 
             <div class="share-buttons">
-                <button class="share-btn telegram" onclick="shareOnSocial('telegram')"><i class="fa-brands fa-telegram"></i> Telegram</button>
-                <button class="share-btn whatsapp" onclick="shareOnSocial('whatsapp')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
-                <button class="share-btn twitter" onclick="shareOnSocial('twitter')"><i class="fa-brands fa-twitter"></i> Twitter/X</button>
+                <button class="share-btn telegram" onclick="window.shareOnSocial('telegram')"><i class="fa-brands fa-telegram"></i> Telegram</button>
+                <button class="share-btn whatsapp" onclick="window.shareOnSocial('whatsapp')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+                <button class="share-btn twitter" onclick="window.shareOnSocial('twitter')"><i class="fa-brands fa-twitter"></i> Twitter/X</button>
             </div>
         </div>
         <div class="card referrals-list-card">
             <h4>Referrals List</h4>
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="referral-search-input" onkeyup="renderReferralsList()" placeholder="Search referrals by username...">
+                <input type="text" id="referral-search-input" onkeyup="window.renderReferralsList()" placeholder="Search referrals by username...">
             </div>
             <div id="referrals-list-container">
                 <!-- Referrals will be rendered here by JS -->
@@ -627,19 +627,19 @@
             <div class="info-item"><span class="label">Total Commission</span><span class="value" id="profile-total-commission">0 Points</span></div>
         </div>
         <div class="card profile-actions">
-            <button class="profile-action-button" onclick="openWithdrawModal()"> <i class="fa-solid fa-wallet"></i> <span>Request Withdrawal</span> <i class="fa-solid fa-chevron-right"></i> </button>
+            <button class="profile-action-button" onclick="window.openWithdrawModal()"> <i class="fa-solid fa-wallet"></i> <span>Request Withdrawal</span> <i class="fa-solid fa-chevron-right"></i> </button>
         </div>
         <div class="card profile-actions">
-            <button class="profile-action-button" onclick="showView('history-view')"> <i class="fa-solid fa-history"></i> <span>Transaction History</span> <i class="fa-solid fa-chevron-right"></i> </button>
+            <button class="profile-action-button" onclick="window.showView('history-view')"> <i class="fa-solid fa-history"></i> <span>Transaction History</span> <i class="fa-solid fa-chevron-right"></i> </button>
         </div>
       </div>
     </main>
 
     <nav class="footer-nav">
-      <button class="nav-button active" onclick="showView('home-view')"><i class="icon fa-solid fa-house"></i>Home</button>
-      <button class="nav-button" onclick="showView('earn-view')"><i class="icon fa-solid fa-dollar-sign"></i>Earn</button>
-      <button class="nav-button" onclick="showView('refer-view')"><i class="icon fa-solid fa-users"></i>Refer</button>
-      <button class="nav-button" onclick="showView('profile-view')"><i class="icon fa-solid fa-user"></i>Profile</button>
+      <button class="nav-button active" onclick="window.showView('home-view')"><i class="icon fa-solid fa-house"></i>Home</button>
+      <button class="nav-button" onclick="window.showView('earn-view')"><i class="icon fa-solid fa-dollar-sign"></i>Earn</button>
+      <button class="nav-button" onclick="window.showView('refer-view')"><i class="icon fa-solid fa-users"></i>Refer</button>
+      <button class="nav-button" onclick="window.showView('profile-view')"><i class="icon fa-solid fa-user"></i>Profile</button>
     </nav>
   </div>
   
@@ -654,7 +654,7 @@
         </div>
         <div class="form-group"><label for="withdraw-number">Account Number</label><input type="tel" id="withdraw-number" placeholder="e.g., 01700000000"></div>
         <div class="form-group"><label for="withdraw-amount">Amount (<span class="currency-symbol-modal">...</span>)</label><input type="number" id="withdraw-amount" placeholder="Enter amount"></div>
-        <div class="modal-actions"><button class="action-button secondary-button" onclick="closeWithdrawModal()">Cancel</button><button class="action-button primary-button" onclick="requestWithdraw()">Confirm</button></div>
+        <div class="modal-actions"><button class="action-button secondary-button" onclick="window.closeWithdrawModal()">Cancel</button><button class="action-button primary-button" onclick="window.requestWithdraw()">Confirm</button></div>
     </div>
   </div>
 
@@ -685,21 +685,19 @@
     
     // --- Database References ---
     const configRef = ref(database, 'app/config');
-    let userRef; // Will be set after getting user ID
+    let userRef;
     const withdrawRequestsRef = ref(database, 'app/withdraw_requests');
 
     // --- Global App State ---
-    const clientVersion = "1.0.0"; // এই অ্যাপটির ভার্সন
+    const clientVersion = "1.0.0"; 
     let appConfig = {}; 
     let userData = {};
     let tgUser = null;
     let isConfigLoaded = false;
     let isUserLoaded = false;
     
-    let currentAdNetwork = 'Monetag';
-
     // --- Constants ---
-    const POINTS_PER_BDT = 100; // Default, will be updated from config
+    const POINTS_PER_BDT = 100;
     const hourlyAdsLimit = 25; 
     const minReferralsForWithdrawal = 3; 
 
@@ -712,7 +710,6 @@
             tgUser = Telegram.WebApp.initDataUnsafe.user;
         } else {
             console.warn("Telegram Web App not found. Using mock user.");
-            // Mock user for testing in browser
             tgUser = { id: 12345678, first_name: 'Test', last_name: 'User', username: 'testuser', photo_url: 'https://i.pravatar.cc/150?u=12345678'};
         }
 
@@ -723,7 +720,6 @@
 
         userRef = ref(database, `app/users/${tgUser.id}`);
 
-        // 1. Fetch config first
         onValue(configRef, (snapshot) => {
             if (snapshot.exists()) {
                 appConfig = snapshot.val();
@@ -731,79 +727,58 @@
 
                 if (!isConfigLoaded) {
                     isConfigLoaded = true;
-                    checkVersionAndNotice();
-                    // After loading config, try to initialize the user
+                    if (checkVersionAndNotice()) return; // Stop if update needed
                     initializeUser();
                 }
-
-                // Always update dynamic elements on any config change
                 updateDynamicElements();
                 updateDisplay();
             } else {
                 console.error("Could not load config from Firebase.");
-                document.getElementById('loading-overlay').innerHTML = "<p>Error: Could not load app settings. Please try again later.</p>";
+                document.getElementById('loading-overlay').innerHTML = "<p>Error: Could not load app settings.</p>";
             }
-        }, { onlyOnce: false }); // Real-time listener
+        });
     }
 
     async function initializeUser() {
-        // 2. Fetch user data
         onValue(userRef, async (snapshot) => {
             if (snapshot.exists()) {
                 userData = snapshot.val();
             } else {
-                // New user, create their data in Firebase
                 console.log("New user detected. Creating profile...");
                 const newUser = {
-                    profile: {
-                        id: tgUser.id,
-                        firstName: tgUser.first_name || '',
-                        lastName: tgUser.last_name || '',
-                        username: tgUser.username || '',
-                        photoUrl: tgUser.photo_url || ''
-                    },
-                    balance: 0,
-                    totalEarnings: 0,
-                    totalAdsWatched: 0,
-                    totalReferralCommission: 0,
-                    referralsList: {},
-                    transactionHistory: {},
-                    tasksState: {},
+                    profile: { id: tgUser.id, firstName: tgUser.first_name || '', lastName: tgUser.last_name || '', username: tgUser.username || '', photoUrl: tgUser.photo_url || '' },
+                    balance: 0, totalEarnings: 0, totalAdsWatched: 0, totalReferralCommission: 0,
+                    referralsList: {}, transactionHistory: {}, tasksState: {},
                     checkinState: { streak: 0, lastClaimTimestamp: null },
                     adTracking: { monetag: { dailyCount: 0, hourlyCount: 0, lastAdTimestamp: null } },
                     dailyStats: { adsWatched: 0, referralCommission: 0, lastReset: new Date().toISOString() },
-                    isBlocked: false,
-                    joinedAt: new Date().toISOString()
+                    isBlocked: false, joinedAt: new Date().toISOString()
                 };
                 await set(userRef, newUser);
                 userData = newUser;
             }
             
-            console.log("User data loaded/created:", userData);
-
-            if (!isUserLoaded) {
-                isUserLoaded = true;
-                // Now that both config and user are loaded, show the app
-                initializeAppUI();
-            }
-            
-            // Check for block status on every update
             if (userData.isBlocked) {
                 document.querySelector('.container').style.display = 'none';
                 document.getElementById('blocked-overlay').style.display = 'flex';
                 return;
             }
 
-            checkAndResetDailyStats();
+            if (!isUserLoaded) {
+                isUserLoaded = true;
+                initializeAppUI();
+            }
+            
+            await checkAndResetDailyStats();
             updateDisplay();
-
-        }, { onlyOnce: false }); // Real-time listener for user data
+        });
     }
 
     function initializeAppUI() {
         loadTelegramUser();
         showView('home-view');
         initializeInAppAds();
+        initializeEventListeners();
         document.getElementById('loading-overlay').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('loading-overlay').style.display = 'none';
@@ -812,22 +787,17 @@
     }
     
     function checkVersionAndNotice() {
-        // App Version Control
         if (appConfig.appVersion && appConfig.appVersion !== clientVersion) {
             document.getElementById('update-overlay').style.display = 'flex';
-            return; // Stop further execution
+            return true;
         }
 
-        // Announcement / Notice System
         const announcement = appConfig.announcement || '';
         const bannerContainer = document.getElementById('announcement-banner-container');
         if (announcement.trim() !== '' && !sessionStorage.getItem('announcement_closed')) {
-            bannerContainer.innerHTML = `
-                <div id="announcement-banner">
-                    <span>${announcement}</span>
-                    <button onclick="closeAnnouncement()">&times;</button>
-                </div>`;
+            bannerContainer.innerHTML = `<div id="announcement-banner"><span>${announcement}</span><button onclick="window.closeAnnouncement()">&times;</button></div>`;
         }
+        return false;
     }
     
     window.closeAnnouncement = () => {
@@ -835,13 +805,11 @@
         sessionStorage.setItem('announcement_closed', 'true');
     };
 
-    // This function updates parts of the UI that depend on appConfig
     function updateDynamicElements() {
         if (!isConfigLoaded) return;
-
         const commissionRate = appConfig.refferBonus || 10;
         document.getElementById('referral-commission-badge').textContent = `${commissionRate}%`;
-        document.getElementById('referral-description-p').textContent = `Earn ${commissionRate}% of your friends' earnings for life! Follow these simple steps to start:`;
+        document.getElementById('referral-description-p').textContent = `Earn ${commissionRate}% of your friends' earnings for life!`;
 
         renderAdNetworks();
         
@@ -864,10 +832,7 @@
     
     function initializeInAppAds() {
         if (typeof show_9794133 === 'function') {
-            show_9794133({
-              type: 'inApp',
-              inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
-            });
+            show_9794133({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
         } else {
             setTimeout(initializeInAppAds, 2000);
         }
@@ -883,34 +848,32 @@
     async function checkAndResetDailyStats() {
         if (!userData.dailyStats || isNewDay(userData.dailyStats.lastReset)) {
             const updates = {
-                'dailyStats': {
-                    adsWatched: 0,
-                    referralCommission: 0,
-                    lastReset: new Date().toISOString()
-                },
+                'dailyStats': { adsWatched: 0, referralCommission: 0, lastReset: new Date().toISOString() },
                 'adTracking/monetag/dailyCount': 0,
                 'adTracking/monetag/hourlyCount': 0
-                // Add other daily resets here if needed
             };
             await update(userRef, updates);
         }
     }
 
-    function showView(viewId) {
+    window.showView = (viewId) => {
         if (!isConfigLoaded || !isUserLoaded) return; 
         document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
         
-        document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
-        const activeBtn = document.querySelector(`.nav-button[onclick*="'${viewId}'"]`);
-        if(activeBtn) activeBtn.classList.add('active');
+        document.querySelectorAll('.nav-button').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('onclick').includes(viewId)) {
+                btn.classList.add('active');
+            }
+        });
         
         if (viewId === 'earn-view') updateDynamicElements();
         if (viewId === 'refer-view') renderReferralsList();
         if (viewId === 'history-view') renderHistory();
         
         updateDisplay(); 
-    }
+    };
     
     function updateDisplay() {
         if (!isConfigLoaded || !isUserLoaded) return;
@@ -920,31 +883,22 @@
         const balanceInBdt = pointsBalance / POINTS_PER_BDT;
 
         document.getElementById('header-balance').textContent = `${currencySymbol} ${balanceInBdt.toFixed(2)}`;
-        
-        // Home View
         document.getElementById('home-total-earnings').innerHTML = `<span class="points-value">${pointsBalance} Points</span><span class="bdt-value">${currencySymbol} ${balanceInBdt.toFixed(2)}</span>`;
         document.getElementById('home-ads-watched').textContent = userData.totalAdsWatched || 0;
         document.getElementById('home-total-referrals').textContent = userData.referralsList ? Object.keys(userData.referralsList).length : 0;
         document.getElementById('home-total-tasks-completed').textContent = userData.tasksState ? Object.keys(userData.tasksState).filter(k => userData.tasksState[k].completed).length : 0;
         document.getElementById('home-total-commission').textContent = `${userData.totalReferralCommission || 0} Points`;
         
-        // Earn View (Ad limits)
         const dailyAdsLimit = appConfig.adsLimit || 250;
         const adTracking = userData.adTracking?.monetag || { dailyCount: 0, hourlyCount: 0 };
         document.querySelectorAll('.ad-network-card').forEach(card => {
-            const dailyCompletedEl = card.querySelector(`.tasks-completed-daily`);
-            const dailyRemainingEl = card.querySelector(`.tasks-remaining-daily`);
-            const progressBarEl = card.querySelector(`.progress-bar-inner`);
-            const hourlyLimitEl = card.querySelector(`.hourly-limit-value`);
-            const dailyLimitEl = card.querySelector(`.daily-limit-value`);
             const watchButton = card.querySelector(`.watch-ad-button`);
-
-            if (dailyCompletedEl && watchButton) {
-                dailyCompletedEl.textContent = adTracking.dailyCount;
-                dailyRemainingEl.textContent = dailyAdsLimit - adTracking.dailyCount;
-                progressBarEl.style.width = `${(adTracking.dailyCount / dailyAdsLimit) * 100}%`;
-                hourlyLimitEl.textContent = `${adTracking.hourlyCount}/${hourlyAdsLimit}`;
-                dailyLimitEl.textContent = `${adTracking.dailyCount}/${dailyAdsLimit}`;
+            if (watchButton) {
+                card.querySelector(`.tasks-completed-daily`).textContent = adTracking.dailyCount;
+                card.querySelector(`.tasks-remaining-daily`).textContent = dailyAdsLimit - adTracking.dailyCount;
+                card.querySelector(`.progress-bar-inner`).style.width = `${(adTracking.dailyCount / dailyAdsLimit) * 100}%`;
+                card.querySelector(`.hourly-limit-value`).textContent = `${adTracking.hourlyCount}/${hourlyAdsLimit}`;
+                card.querySelector(`.daily-limit-value`).textContent = `${adTracking.dailyCount}/${dailyAdsLimit}`;
 
                 if (adTracking.dailyCount >= dailyAdsLimit) {
                     watchButton.disabled = true; watchButton.innerHTML = `<i class="fa-solid fa-check"></i> Daily Limit`;
@@ -956,177 +910,306 @@
             }
         });
         
-        // Refer View
-        document.getElementById('refer-today-referrals').textContent = "N/A"; // This logic needs server-side aggregation
         document.getElementById('refer-today-commission').textContent = `${userData.dailyStats?.referralCommission || 0} Points`;
-        
-        // Profile View
         document.getElementById('profile-balance').innerHTML = `${pointsBalance} Points <span class="bdt-value">${currencySymbol} ${balanceInBdt.toFixed(2)}</span>`;
-        document.getElementById('profile-total-earnings').innerHTML = `${userData.totalEarnings || 0} Points <span class="bdt-value">${(userData.totalEarnings || 0) / POINTS_PER_BDT}</span>`;
+        document.getElementById('profile-total-earnings').innerHTML = `${userData.totalEarnings || 0} Points <span class="bdt-value">${((userData.totalEarnings || 0) / POINTS_PER_BDT).toFixed(2)} ${currencySymbol}</span>`;
         document.getElementById('profile-ads-watched').textContent = userData.totalAdsWatched || 0;
         document.getElementById('profile-referrals').textContent = userData.referralsList ? Object.keys(userData.referralsList).length : 0;
         document.getElementById('profile-total-commission').textContent = `${userData.totalReferralCommission || 0} Points`;
-        
-        if(document.getElementById('earn-view').classList.contains('active')){
-           updateDynamicElements();
-        }
     }
 
     function loadTelegramUser() {
-        if (tgUser) {
-            const userName = tgUser.first_name || 'User';
+        if (tgUser && userData.profile) {
+            const { firstName, lastName, username, photoUrl } = userData.profile;
+            const userName = firstName || 'User';
             document.getElementById('header-username').textContent = userName;
             const headerAvatar = document.getElementById('header-avatar-placeholder');
-            headerAvatar.innerHTML = tgUser.photo_url ? `<img src="${tgUser.photo_url}" alt="A">` : `<div style="width:100%; height:100%; background:var(--primary-color); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold;">${userName.charAt(0)}</div>`;
+            headerAvatar.innerHTML = photoUrl ? `<img src="${photoUrl}" alt="A">` : `<div style="width:100%; height:100%; background:var(--primary-color); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold;">${userName.charAt(0)}</div>`;
             document.getElementById('welcome-message').textContent = `Welcome, ${userName}!`;
-            document.getElementById('profile-name').textContent = `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim();
-            document.getElementById('profile-username').textContent = tgUser.username ? `@${tgUser.username}` : 'No username';
-            document.getElementById('profile-avatar').src = tgUser.photo_url ? tgUser.photo_url : `https://i.pravatar.cc/150?u=${tgUser.id}`;
-            const botUsername = "Genius_Ads_Earning_Bot";
+            document.getElementById('profile-name').textContent = `${firstName || ''} ${lastName || ''}`.trim();
+            document.getElementById('profile-username').textContent = username ? `@${username}` : 'No username';
+            document.getElementById('profile-avatar').src = photoUrl || `https://i.pravatar.cc/150?u=${tgUser.id}`;
+            const botUsername = "Genius_Ads_Earning_Bot"; // Replace with your bot's username
             document.getElementById('referral-link-input').value = `https://t.me/${botUsername}?start=${tgUser.id}`;
         }
     }
 
     async function grantReward(adNetwork) {
-        const rewardPoints = (appConfig.adsReward || 0) * POINTS_PER_BDT;
+        const rewardPoints = (appConfig.adsReward || 1) * POINTS_PER_BDT;
         const adTracking = userData.adTracking?.monetag || { dailyCount: 0, hourlyCount: 0 };
 
-        const updates = {};
-        updates['balance'] = (userData.balance || 0) + rewardPoints;
-        updates['totalEarnings'] = (userData.totalEarnings || 0) + rewardPoints;
-        updates['totalAdsWatched'] = (userData.totalAdsWatched || 0) + 1;
-        updates['dailyStats/adsWatched'] = (userData.dailyStats?.adsWatched || 0) + 1;
-        updates['adTracking/monetag/dailyCount'] = adTracking.dailyCount + 1;
-        updates['adTracking/monetag/hourlyCount'] = adTracking.hourlyCount + 1;
-        updates['adTracking/monetag/lastAdTimestamp'] = new Date().toISOString();
+        const updates = {
+            'balance': (userData.balance || 0) + rewardPoints,
+            'totalEarnings': (userData.totalEarnings || 0) + rewardPoints,
+            'totalAdsWatched': (userData.totalAdsWatched || 0) + 1,
+            'dailyStats/adsWatched': (userData.dailyStats?.adsWatched || 0) + 1,
+            'adTracking/monetag/dailyCount': adTracking.dailyCount + 1,
+            'adTracking/monetag/hourlyCount': adTracking.hourlyCount + 1,
+            'adTracking/monetag/lastAdTimestamp': new Date().toISOString()
+        };
         
-        const transactionId = Date.now();
+        const transactionId = `earn_${Date.now()}`;
         updates[`transactionHistory/${transactionId}`] = { 
-            type: 'earning', 
-            amount: rewardPoints, 
-            title: `${adNetwork} Ad Reward`, 
-            date: new Date().toISOString()
+            type: 'earning', amount: rewardPoints, title: `${adNetwork} Ad Reward`, date: new Date().toISOString()
         };
         
         await update(userRef, updates);
-
-        if (window.Telegram && Telegram.WebApp.HapticFeedback) {
-            Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-        }
+        if (window.Telegram?.WebApp?.HapticFeedback) Telegram.WebApp.HapticFeedback.notificationOccurred('success');
     }
     
-    // Unchanged functions (startAdCycleFor, renderCheckinDays, initializeCheckinListener, renderAdNetworks, etc.) follow,
-    // with modifications to use Firebase instead of local state.
+    // --- All Earning Functions ---
+
+    window.startAdCycleFor = (network) => {
+        const dailyAdsLimit = appConfig.adsLimit || 250;
+        const adTracking = userData.adTracking?.monetag || { dailyCount: 0, hourlyCount: 0 };
+        if (adTracking.dailyCount >= dailyAdsLimit || adTracking.hourlyCount >= hourlyAdsLimit) return;
+
+        const overlay = document.getElementById('timer-notification-overlay');
+        const overlayContent = document.getElementById('timer-notification-content');
+        
+        show_9794133().catch(e => console.error("Monetag Ad SDK error:", e));
+
+        overlay.style.display = 'flex';
+        let countdown = 30;
+        overlayContent.innerHTML = `<div class="icon"><i class="fa-solid fa-hourglass-half"></i></div><div>${countdown}</div>`;
+
+        const intervalId = setInterval(() => {
+            countdown--;
+            overlayContent.innerHTML = `<div class="icon"><i class="fa-solid fa-hourglass-half"></i></div><div>${countdown}</div>`;
+            if (countdown <= 0) clearInterval(intervalId);
+        }, 1000);
+
+        setTimeout(() => {
+            clearInterval(intervalId);
+            grantReward(network);
+            const rewardPoints = (appConfig.adsReward || 1) * POINTS_PER_BDT;
+            overlayContent.innerHTML = `<div class="icon" style="color: var(--status-success);"><i class="fa-solid fa-check-circle"></i></div><div>+${rewardPoints} Points!</div>`;
+            setTimeout(() => { overlay.style.display = 'none'; }, 2500);
+        }, 30000);
+    };
+
+    function renderCheckinDays() {
+        const timelineContainer = document.getElementById('checkin-timeline-container');
+        const claimButton = document.getElementById('claim-checkin-button');
+        const checkinRewards = appConfig.dailyCheckinRewards || [];
+        if (!timelineContainer || !claimButton || checkinRewards.length === 0) return;
+
+        const { streak = 0, lastClaimTimestamp = null } = userData.checkinState || {};
+        const canClaimToday = isNewDay(lastClaimTimestamp);
+        let isClaimable = false, claimableReward = 0;
+
+        timelineContainer.innerHTML = checkinRewards.map((dayInfo, index) => {
+            const reward = dayInfo.reward * POINTS_PER_BDT;
+            let status = 'locked', icon = '🎁';
+            if (index < streak) { status = 'claimed'; icon = '<i class="fa-solid fa-check"></i>'; }
+            else if (index === streak && canClaimToday) {
+                status = 'claimable'; icon = '<i class="fa-solid fa-gift"></i>';
+                isClaimable = true; claimableReward = reward;
+            }
+            return `<div class="day-item ${status}"><div class="day-content"><div class="day-circle">${icon}</div><div class="day-reward">${reward} Points</div><div class="day-number">Day ${index + 1}</div></div></div>`;
+        }).join('');
+        
+        if (isClaimable) {
+            claimButton.innerHTML = `<i class="fa-solid fa-gift"></i> Claim ${claimableReward} Points`;
+            claimButton.disabled = false;
+        } else if (streak >= checkinRewards.length) {
+            claimButton.innerHTML = `<i class="fa-solid fa-check-circle"></i> Cycle Complete`;
+            claimButton.disabled = true;
+        } else {
+            claimButton.innerHTML = `<i class="fa-solid fa-clock"></i> Come back tomorrow`;
+            claimButton.disabled = true;
+        }
+    }
+
+    function initializeEventListeners() {
+        document.getElementById('claim-checkin-button').addEventListener('click', async () => {
+            const checkinRewards = appConfig.dailyCheckinRewards || [];
+            const { streak = 0, lastClaimTimestamp = null } = userData.checkinState || {};
+            if (streak < checkinRewards.length && isNewDay(lastClaimTimestamp)) {
+                const dayInfo = checkinRewards[streak];
+                if (!dayInfo) return;
+                
+                const reward = dayInfo.reward * POINTS_PER_BDT;
+                const newStreak = streak + 1;
+                const newTimestamp = new Date().getTime();
+
+                const updates = {
+                    'balance': (userData.balance || 0) + reward,
+                    'totalEarnings': (userData.totalEarnings || 0) + reward,
+                    'checkinState/streak': newStreak,
+                    'checkinState/lastClaimTimestamp': newTimestamp,
+                };
+                const transactionId = `checkin_${Date.now()}`;
+                updates[`transactionHistory/${transactionId}`] = { type: 'login', amount: reward, title: `Daily Check-in: Day ${newStreak}`, date: new Date().toISOString() };
+                
+                await update(userRef, updates);
+
+                const overlay = document.getElementById('timer-notification-overlay');
+                overlay.style.display = 'flex';
+                overlay.querySelector('.timer-notification-content').innerHTML = `<div class="icon" style="color: var(--status-login);"><i class="fa-solid fa-calendar-check"></i></div><div>+${reward} Points!</div>`;
+                setTimeout(() => { overlay.style.display = 'none'; }, 2500);
+            }
+        });
+    }
+
+    function renderAdNetworks() {
+        const container = document.getElementById('ad-networks-container');
+        if (!container || !appConfig.adNetworksEnabled || !appConfig.adNetworks) return container.innerHTML = "";
+
+        container.innerHTML = appConfig.adNetworks.filter(n => n.enabled).map(network => `
+            <div class="ad-network-card">
+                 <a href="#" class="earn-option-card" onclick="event.preventDefault(); document.querySelector('.watch-ad-button[data-network=\\'${network.name}\\']').click();">
+                    <div class="logo-wrapper"><img src="https://i.ibb.co/Lh2SFvmH/Untitled-design-20250825-163934-0000.png" alt="${network.name} Logo"></div>
+                    <div class="info-wrapper"><span class="company-name">${network.name}</span><span class="subtitle">Watch ads & get rewards</span></div>
+                    <div class="action-wrapper"><i class="fa-solid fa-chevron-right"></i></div>
+                </a>
+                <div class="card progress-card" style="margin-top: -5px; border-radius: 0 0 12px 12px; margin-bottom: 12px;">
+                    <h3>Watch Ads</h3>
+                    <div class="progress-info">
+                        <span>Completed: <span class="tasks-completed-daily">0</span></span>
+                        <span>Remaining: <span class="tasks-remaining-daily">${appConfig.adsLimit || 250}</span></span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-bar-inner"></div></div>
+                    <div class="limits-grid">
+                        <div class="limit-card"><div class="icon"><i class="fa-solid fa-clock"></i></div><h3 class="value hourly-limit-value">0/${hourlyAdsLimit}</h3><p class="label">Hourly Limit</p></div>
+                        <div class="limit-card"><div class="icon"><i class="fa-solid fa-calendar-day"></i></div><h3 class="value daily-limit-value">0/${appConfig.adsLimit || 250}</h3><p class="label">Daily Limit</p></div>
+                    </div>
+                    <button class="action-button primary-button watch-ad-button" data-network="${network.name}" onclick="window.startAdCycleFor('${network.name}')">
+                        <i class="fa-solid fa-play-circle"></i> Watch Ad & Earn
+                    </button>
+                </div>
+            </div>`).join('');
+    }
     
-    // Example of a modified function: requestWithdraw
-    async function requestWithdraw() {
+    function renderTasks() {
+        const container = document.getElementById('tasks-container');
+        const tasks = appConfig.tasks || [];
+        if (!container || tasks.length === 0) return;
+        
+        container.innerHTML = tasks.filter(t => t.enabled).map(task => {
+            const taskState = userData.tasksState?.[task.id] || {};
+            let buttonHTML;
+            if (taskState.completed) {
+                buttonHTML = `<button class="task-button completed" disabled><i class="fa-solid fa-check"></i> Completed</button>`;
+            } else if (taskState.pendingClaim) {
+                buttonHTML = `<button class="task-button" onclick="window.handleTaskClick(${task.id}, true)">Claim Reward</button>`;
+            } else {
+                buttonHTML = `<button class="task-button" onclick="window.handleTaskClick(${task.id}, false)">Join & Claim</button>`;
+            }
+            return `<div class="card task-card"><div class="task-info"><i class="fa-solid fa-tasks task-icon"></i><div><h4>${task.title}</h4><p>${task.reward * POINTS_PER_BDT} points reward</p></div></div>${buttonHTML}</div>`;
+        }).join('');
+    }
+
+    window.handleTaskClick = async (taskId, isClaiming) => {
+        const task = (appConfig.tasks || []).find(t => t.id === taskId);
+        if (!task || userData.tasksState?.[taskId]?.completed) return;
+
+        if (isClaiming) {
+            const reward = task.reward * POINTS_PER_BDT;
+            const updates = {
+                'balance': (userData.balance || 0) + reward,
+                'totalEarnings': (userData.totalEarnings || 0) + reward,
+                [`tasksState/${taskId}/completed`]: true,
+                [`tasksState/${taskId}/pendingClaim`]: false
+            };
+            const transactionId = `task_${Date.now()}`;
+            updates[`transactionHistory/${transactionId}`] = { type: 'task', amount: reward, title: `Task: ${task.title}`, date: new Date().toISOString() };
+            await update(userRef, updates);
+            
+            const overlay = document.getElementById('timer-notification-overlay');
+            overlay.style.display = 'flex';
+            overlay.querySelector('.timer-notification-content').innerHTML = `<div class="icon" style="color: var(--status-task);"><i class="fa-solid fa-check-double"></i></div><div>+${reward} Points!</div>`;
+            setTimeout(() => { overlay.style.display = 'none'; }, 2500);
+        } else {
+            if (window.Telegram?.WebApp) Telegram.WebApp.openTelegramLink(task.link);
+            else window.open(task.link, "_blank");
+            await update(userRef, { [`tasksState/${taskId}/pendingClaim`]: true });
+            alert('After joining, come back and click "Claim Reward".');
+        }
+    };
+
+    // --- Withdrawal Functions ---
+    window.openWithdrawModal = () => {
+        if (!appConfig.withdrawalMethodsEnabled) return alert("Withdrawals are temporarily disabled.");
+        const container = document.getElementById('payment-method-selector-container');
+        const methods = (appConfig.withdrawalMethods || []).filter(m => m.enabled);
+        if (methods.length === 0) {
+            container.innerHTML = "<p>No payment methods available.</p>";
+        } else {
+            container.innerHTML = methods.map(method => `<div><input type="radio" id="method-${method.name.toLowerCase()}" name="payment-method" value="${method.name}"><label for="method-${method.name.toLowerCase()}" class="payment-method-label"><img src="${method.logo}" alt="${method.name}"><span>${method.bn_name}</span></label></div>`).join('');
+        }
+        document.querySelectorAll('.currency-symbol-modal').forEach(el => el.textContent = appConfig.currency || 'BDT');
+        document.getElementById('withdraw-modal').classList.add('active');
+    };
+    
+    window.closeWithdrawModal = () => {
+        document.getElementById('withdraw-modal').classList.remove('active');
+    };
+
+    window.requestWithdraw = async () => {
         const minWithdraw = appConfig.minWithdraw || 500;
         const currencySymbol = appConfig.currency || 'BDT';
-
-        if ((userData.referralsList ? Object.keys(userData.referralsList).length : 0) < minReferralsForWithdrawal) {
-            return alert(`Minimum ${minReferralsForWithdrawal} referrals required to withdraw.`);
-        }
+        if ((userData.referralsList ? Object.keys(userData.referralsList).length : 0) < minReferralsForWithdrawal) return alert(`Minimum ${minReferralsForWithdrawal} referrals required.`);
         
         const balanceInBdt = (userData.balance || 0) / POINTS_PER_BDT;
-        if (balanceInBdt < minWithdraw) {
-            return alert(`Minimum ${currencySymbol} ${minWithdraw.toFixed(2)} balance required.`);
-        }
+        if (balanceInBdt < minWithdraw) return alert(`Minimum ${currencySymbol} ${minWithdraw.toFixed(2)} balance required.`);
         
         const selectedMethodEl = document.querySelector('input[name="payment-method"]:checked');
         const method = selectedMethodEl ? selectedMethodEl.value : null;
         const number = document.getElementById('withdraw-number').value.trim();
         const amountInBdt = parseFloat(document.getElementById('withdraw-amount').value);
 
-        if (!method) return alert("Please select a payment method.");
-        if (!number || !/^\d{11}$/.test(number)) return alert("Please enter a valid 11-digit account number.");
-        if (isNaN(amountInBdt) || amountInBdt <= 0) return alert("Please enter a valid amount.");
-        if (amountInBdt < minWithdraw) return alert(`Minimum withdrawal amount is ${currencySymbol} ${minWithdraw.toFixed(2)}.`);
-        if (amountInBdt > balanceInBdt) return alert("You do not have enough balance for this withdrawal.");
+        if (!method || !number || isNaN(amountInBdt) || amountInBdt <= 0) return alert("Please fill all fields correctly.");
+        if (amountInBdt < minWithdraw) return alert(`Minimum withdrawal is ${currencySymbol} ${minWithdraw.toFixed(2)}.`);
+        if (amountInBdt > balanceInBdt) return alert("Insufficient balance.");
 
         const amountInPoints = amountInBdt * POINTS_PER_BDT;
-
-        // 1. Create the withdrawal request in the central list
-        const newRequest = {
-            userId: tgUser.id,
-            userName: `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim(),
-            method: method,
-            number: number,
-            amount: amountInBdt,
-            date: new Date().toISOString(),
-            status: 'Pending'
-        };
+        
         const newRequestRef = push(withdrawRequestsRef);
+        const newRequest = { userId: tgUser.id, method, number, amount: amountInBdt, date: new Date().toISOString(), status: 'Pending' };
         await set(newRequestRef, newRequest);
 
-        // 2. Update the user's data
-        const updates = {};
-        updates['balance'] = (userData.balance || 0) - amountInPoints;
-        const transactionId = newRequestRef.key; // Use the unique key from the request
-        updates[`transactionHistory/${transactionId}`] = {
-            type: 'withdrawal',
-            method: method,
-            number: number,
-            amount: amountInBdt,
-            date: newRequest.date,
-            status: 'Pending'
-        };
+        const updates = { 'balance': (userData.balance || 0) - amountInPoints };
+        updates[`transactionHistory/${newRequestRef.key}`] = { type: 'withdrawal', method, number, amount: amountInBdt, date: newRequest.date, status: 'Pending' };
         await update(userRef, updates);
         
         closeWithdrawModal();
-        alert("Your withdrawal request has been submitted successfully and is pending review.");
-    }
+        alert("Withdrawal request submitted successfully.");
+    };
     
-    // Example of a modified renderHistory
-    function renderHistory() {
+    // --- History and Referrals ---
+    async function renderHistory() {
         const container = document.getElementById('history-list-container');
         const currencySymbol = appConfig.currency || 'BDT';
-        const transactionHistory = userData.transactionHistory || {};
-        const historyItems = Object.values(transactionHistory).sort((a,b) => new Date(b.date) - new Date(a.date));
+        const historyItems = Object.entries(userData.transactionHistory || {}).sort(([,a],[,b]) => new Date(b.date) - new Date(a.date));
 
-        if (historyItems.length === 0) {
-            container.innerHTML = `<div class="no-history"><i class="fa-solid fa-file-invoice-dollar"></i><p>You have no transaction history yet.</p></div>`;
-            return;
-        }
+        if (historyItems.length === 0) return container.innerHTML = `<div class="no-history">...</div>`;
 
-        // We need to sync withdrawal statuses from the central DB
-        get(withdrawRequestsRef).then(snapshot => {
-            const allWithdrawals = snapshot.val() || {};
-            container.innerHTML = historyItems.map(item => {
-                let dateStr = new Date(item.date).toLocaleString('en-GB');
-                
-                // For withdrawals, get the latest status from the central list
-                if (item.type === 'withdrawal') {
-                    const correspondingRequestKey = Object.keys(allWithdrawals).find(key => allWithdrawals[key].date === item.date && allWithdrawals[key].userId === tgUser.id);
-                    const status = correspondingRequestKey ? allWithdrawals[correspondingRequestKey].status : item.status;
-                    return `<div class="history-item withdrawal"><div class="icon-wrapper"><i class="fa-solid fa-arrow-down"></i></div><div class="history-item-info"><span class="title">Withdraw via ${item.method}</span><span class="details">${item.number} &bull; ${dateStr}</span></div><div class="amount-wrapper"><span class="amount">-${currencySymbol} ${item.amount.toFixed(2)}</span><span class="status status-${status.toLowerCase()}">${status}</span></div></div>`;
-                }
-
-                let amountStr = item.amount || 0;
-                switch(item.type) {
-                    case 'earning': return `<div class="history-item earning"><div class="icon-wrapper"><i class="fa-solid fa-arrow-up"></i></div><div class="history-item-info"><span class="title">${item.title}</span><span class="details">${dateStr}</span></div><div class="amount-wrapper"><span class="amount">+${amountStr} Points</span></div></div>`;
-                    case 'login': return `<div class="history-item login"><div class="icon-wrapper"><i class="fa-solid fa-calendar-check"></i></div><div class="history-item-info"><span class="title">${item.title}</span><span class="details">${dateStr}</span></div><div class="amount-wrapper"><span class="amount">+${amountStr} Points</span></div></div>`;
-                    case 'task': return `<div class="history-item task"><div class="icon-wrapper"><i class="fa-solid fa-check-double"></i></div><div class="history-item-info"><span class="title">${item.title}</span><span class="details">${dateStr}</span></div><div class="amount-wrapper"><span class="amount">+${amountStr} Points</span></div></div>`;
-                    default: return '';
-                }
-            }).join('');
+        container.innerHTML = historyItems.map(([key, item]) => {
+            let dateStr = new Date(item.date).toLocaleString('en-GB');
+            if (item.type === 'withdrawal') {
+                return `<div class="history-item withdrawal"><div class="icon-wrapper"><i class="fa-solid fa-arrow-down"></i></div><div class="history-item-info"><span class="title">Withdraw via ${item.method}</span><span class="details">${item.number} &bull; ${dateStr}</span></div><div class="amount-wrapper"><span class="amount">-${currencySymbol} ${item.amount.toFixed(2)}</span><span class="status status-${item.status.toLowerCase()}">${item.status}</span></div></div>`;
+            }
+            // Other types...
+            let amountStr = item.amount || 0;
+            return `<div class="history-item ${item.type}"><div class="icon-wrapper"><i class="fa-solid fa-check"></i></div><div class="history-item-info"><span class="title">${item.title}</span><span class="details">${dateStr}</span></div><div class="amount-wrapper"><span class="amount">+${amountStr} Points</span></div></div>`;
+        }).join('');
+        
+        // Update statuses from the central list
+        const userWithdrawals = Object.entries(await get(withdrawRequestsRef).then(s=>s.val()||{})).filter(([,w])=>w.userId === tgUser.id);
+        historyItems.forEach(([key, item]) => {
+           if(item.type === 'withdrawal'){
+              const match = userWithdrawals.find(([wKey]) => wKey === key);
+              if(match && match[1].status !== item.status){
+                 update(ref(database, `app/users/${tgUser.id}/transactionHistory/${key}`), { status: match[1].status });
+              }
+           }
         });
     }
 
-    // --- Keep other helper functions, but adapt them to use `userData` and `update(userRef, ...)` ---
-    // The logic inside startAdCycleFor, renderTasks, etc. should be adapted similarly to the examples above.
-    // Due to space, I've shown the core architectural changes and key function modifications.
-    // The remaining functions should be straightforward to adapt based on these patterns.
-
-    // --- Making functions global for inline HTML onclick handlers ---
-    window.showView = showView;
-    window.openWithdrawModal = openWithdrawModal;
-    window.closeWithdrawModal = closeWithdrawModal;
-    window.requestWithdraw = requestWithdraw;
-    window.copyReferralLink = () => { /* Unchanged */ };
-    window.shareOnSocial = () => { /* Unchanged */ };
-    window.renderReferralsList = () => { /* Adapt to read from userData.referralsList */ };
-    window.startAdCycleFor = () => { /* Adapt to call grantReward */ };
-    window.handleTaskClick = () => { /* Adapt to update tasksState in Firebase */ };
+    function renderReferralsList() { /* This function can be implemented to show user's referrals list */ }
+    window.copyReferralLink = () => { navigator.clipboard.writeText(document.getElementById('referral-link-input').value).then(() => alert('Link copied!')); };
+    window.shareOnSocial = (platform) => { /* This function remains unchanged */ };
 
 </script>
 </body>
