@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Genius_Ads_Earning_Bot</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #6a11cb;
+      --primary-hover: #8c3dff;
+      --secondary-color: #f0f2f5;
+      --background-color: #f0f2f5;
+      --text-color: #1c1c1f;
+      --text-muted-color: #65676b;
+      --accent-color: #2575fc;
+      --card-bg: #ffffff;
+      --gradient-start: #6a11cb;
+      --gradient-end: #2575fc;
+      --status-pending: #ffc107;
+      --status-success: #28a745;
+      --status-failed: #dc3545;
+      --status-referral: #17a2b8;
+      --status-login: #fd7e14;
+      --status-task: #007bff;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0; padding: 0; background-color: var(--background-color); color: var(--text-color);
+      font-family: 'Segoe UI', 'Roboto', sans-serif; display: flex; justify-content: center; align-items: center;
+      height: 100vh; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    }
+    .container {
+      width: 100%; height: 100%; max-width: 400px; background: var(--background-color);
+      display: flex; flex-direction: column; overflow: hidden; position: relative;
+    }
+    main {
+      flex-grow: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px;
+    }
+    .view { display: none; animation: fadeIn 0.4s ease-in-out; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .header {
+        display: flex;
+        align-items: center;
+        padding: 0 5px 15px 5px;
+    }
+    .header-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 12px;
+        overflow: hidden;
+    }
+    .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .header-info .username { font-size: 16px; font-weight: 700; margin: 0; }
+    .header-info .balance { font-size: 14px; color: var(--text-muted-color); margin: 2px 0 0; font-weight: 600; }
+
+    .welcome-card {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        color: white;
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 25px;
+        text-align: center;
+    }
+    .welcome-card h2 { margin: 0 0 10px; font-size: 20px; }
+    .welcome-card p { margin: 0 0 15px; opacity: 0.9; }
+    .welcome-card .action-button {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 1px solid white;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    .welcome-card .action-button:hover { background: rgba(255, 255, 255, 0.3); }
+
+    /* নতুন যুক্ত করা বিজ্ঞপ্তির স্টাইল */
+    .announcement-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+    }
+    .announcement-card .icon {
+        font-size: 20px;
+        color: var(--primary-color);
+        margin-right: 15px;
+    }
+    .announcement-card .text {
+        font-size: 14px;
+        color: var(--text-color);
+        line-height: 1.5;
+    }
+    /* শেষ */
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    .stats-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .stats-card .icon { font-size: 24px; color: var(--primary-color); margin-bottom: 8px; }
+    .stats-card .value { font-size: 20px; font-weight: 700; margin: 0; }
+    .stats-card .label { font-size: 13px; color: var(--text-muted-color); margin: 2px 0 0; }
+    .full-width-stats .value span { display: block; }
+    .full-width-stats .value .points-value { font-size: 22px; }
+    .full-width-stats .value .bdt-value { font-size: 14px; font-weight: 500; color: var(--text-muted-color); margin-top: 2px;}
+
+    .full-width-stats { grid-column: 1 / -1; }
+
+    .section-title { font-size: 20px; font-weight: 700; margin-bottom: 15px; padding-left: 5px; }
+
+    .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+
+    .profile-main { text-align: center; padding: 10px 0; }
+    .profile-main .avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 10px; object-fit: cover; border: 3px solid var(--primary-color); }
+    .profile-main .name { font-size: 22px; font-weight: 700; margin: 0; }
+    .profile-main .username { font-size: 16px; color: var(--text-muted-color); margin-top: 4px; }
+
+    .info-list .info-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #eee; }
+    .info-list .info-item:last-child { border-bottom: none; }
+    .info-list .label { font-size: 16px; color: var(--text-muted-color); }
+    .info-list .value { font-size: 16px; font-weight: 600; text-align: right; }
+    .info-list .value .bdt-value { font-size: 12px; color: var(--text-muted-color); font-weight: 500; display: block; margin-top: 2px; }
+    
+    .profile-actions { 
+        padding: 10px !important;
+    }
+    .profile-action-button {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 15px;
+        background: none;
+        border: none;
+        font-size: 16px;
+        text-align: left;
+        color: var(--text-color);
+        cursor: pointer;
+        border-radius: 10px;
+        transition: background-color 0.2s ease;
+    }
+    .profile-action-button:hover {
+        background-color: var(--secondary-color);
+    }
+    .profile-action-button i:first-child {
+        margin-right: 15px;
+        width: 20px;
+        text-align: center;
+        color: var(--primary-color);
+    }
+    .profile-action-button span {
+        flex-grow: 1;
+        font-weight: 600;
+    }
+    .profile-action-button i:last-child {
+        color: var(--text-muted-color);
+    }
+
+    .progress-card { text-align: center; }
+    .progress-card h3 { margin-top: 0; } 
+    .progress-card .progress-info { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: var(--text-muted-color); }
+    .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+    .progress-bar-inner { height: 100%; width: 0%; background: var(--primary-color); border-radius: 4px; }
+    
+    .limits-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 20px;
+        margin-bottom: 5px;
+    }
+    .limit-card {
+        background: #fafafa;
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+        border: 1px solid #e9e9e9;
+    }
+    .limit-card .icon { font-size: 22px; color: var(--primary-color); margin-bottom: 8px; }
+    .limit-card .value { font-size: 18px; font-weight: 700; margin: 0; color: var(--text-color); }
+    .limit-card .label { font-size: 13px; color: var(--text-muted-color); margin: 2px 0 0; }
+
+    .action-button { width: 100%; padding: 15px; border-radius: 12px; border: none; font-size: 16px; font-weight: 700; margin-top: 20px; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; }
+    .action-button:disabled { background-color: #999; cursor: not-allowed; box-shadow: none; transform: none; }
+    .primary-button { background: var(--primary-color); color: #fff; }
+    .primary-button:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3); }
+    .secondary-button { background: var(--secondary-color); color: var(--text-color); }
+    .secondary-button:hover { background: #e0e0e0; }
+
+    .task-card {
+        padding: 15px; display: flex; align-items: center;
+        justify-content: space-between; margin-bottom: 10px;
+    }
+    .task-card:last-child { margin-bottom: 0; }
+    .task-info { display: flex; align-items: center; gap: 15px; }
+    .task-info .task-icon { font-size: 20px; color: var(--status-pending); }
+    .task-info h4, .task-info p { margin: 0; }
+    .task-info h4 { font-size: 16px; font-weight: 700; }
+    .task-info p { font-size: 13px; color: var(--text-muted-color); }
+    .task-button {
+        background: var(--secondary-color); color: var(--primary-color);
+        padding: 10px 16px; border-radius: 10px; font-weight: 700;
+        cursor: pointer; transition: all 0.3s;
+        border: none; font-size: 14px; white-space: nowrap;
+        flex-shrink: 0; min-width: 110px;
+    }
+    .task-button:hover:not(:disabled) { background-color: #e0e0e0; }
+    .task-button:disabled { background-color: #999; color: white; cursor: not-allowed; }
+    .task-button.completed { background-color: var(--status-success); color: white; }
+    .task-button.completed i { margin-right: 6px; }
+
+    .footer-nav { 
+        position: fixed; bottom: 0; left: 0; right: 0; width: 100%; max-width: 400px; 
+        margin: 0 auto; display: flex; justify-content: space-around; background: var(--card-bg); 
+        padding: 10px 0; border-top: 1px solid #e0e0e0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        z-index: 100;
+    }
+    .nav-button { display: flex; flex-direction: column; align-items: center; color: var(--text-muted-color); background: none; border: none; font-size: 12px; transition: color 0.2s ease, transform 0.2s ease; cursor: pointer; padding: 5px; flex-grow: 1; }
+    .nav-button .icon { font-size: 22px; margin-bottom: 4px; }
+    .nav-button:hover { color: var(--text-color); }
+    .nav-button.active { color: var(--primary-color); transform: scale(1.1); }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.3s; }
+    .modal-overlay.active { display: flex; }
+    .modal-content { background: var(--card-bg); padding: 25px; border-radius: 16px; width: 90%; max-width: 360px; text-align: left; animation: slideIn 0.3s; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+    @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-content h3 { margin-top: 0; font-size: 20px; color: var(--text-color); text-align: center; margin-bottom: 20px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 25px;}
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 600; color: var(--text-muted-color); margin-bottom: 8px; font-size: 14px; }
+    .form-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; font-size: 15px; }
+
+    .payment-method-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .payment-method-selector input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .payment-method-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 15px 5px;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        text-align: center;
+        height: 100%;
+    }
+    .payment-method-label img {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        margin-bottom: 10px;
+    }
+    .payment-method-label span {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+    .payment-method-selector input[type="radio"]:checked + .payment-method-label { border-color: var(--primary-color); background-color: #f3e8ff; box-shadow: 0 0 10px rgba(106, 17, 203, 0.2); }
+
+    .history-item { display: flex; align-items: center; padding: 15px; margin-bottom: 12px; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .history-item .icon-wrapper { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 18px; }
+    .history-item.earning .icon-wrapper { background-color: rgba(40, 167, 69, 0.1); color: var(--status-success); }
+    .history-item.withdrawal .icon-wrapper { background-color: rgba(220, 53, 69, 0.1); color: var(--status-failed); }
+    .history-item.referral .icon-wrapper { background-color: rgba(23, 162, 184, 0.1); color: var(--status-referral); }
+    .history-item.login .icon-wrapper { background-color: rgba(253, 126, 20, 0.1); color: var(--status-login); }
+    .history-item.task .icon-wrapper { background-color: rgba(0, 123, 255, 0.1); color: var(--status-task); }
+    .history-item-info { flex-grow: 1; display: flex; flex-direction: column; }
+    .history-item-info .title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .history-item-info .details { font-size: 13px; color: var(--text-muted-color); }
+    .history-item .amount-wrapper { text-align: right; }
+    .history-item .amount { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .history-item.earning .amount, .history-item.referral .amount, .history-item.login .amount, .history-item.task .amount { color: var(--status-success); }
+    .history-item.withdrawal .amount { color: var(--status-failed); }
+    .history-item .status { font-weight: 600; padding: 3px 8px; border-radius: 12px; font-size: 11px; }
+    .status-pending { background-color: rgba(255, 193, 7, 0.2); color: #856404; }
+    .status-approved { background-color: rgba(40, 167, 69, 0.2); color: #155724; } /* নতুন যুক্ত করা স্টাইল */
+    .status-rejected { background-color: rgba(220, 53, 69, 0.2); color: #721c24; } /* নতুন যুক্ত করা স্টাইল */
+    .no-history { text-align: center; color: var(--text-muted-color); padding: 50px 20px; background: var(--card-bg); border-radius: 12px; }
+    .no-history i { font-size: 48px; margin-bottom: 15px; color: #ccc; }
+
+    .timer-notification-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.6); display: none; align-items: center;
+        justify-content: center; z-index: 9999999; animation: fadeIn 0.3s;
+    }
+    .timer-notification-content {
+        color: white; font-size: 28px; font-weight: bold; padding: 25px 35px;
+        background: rgba(0, 0, 0, 0.75); border-radius: 15px; text-align: center;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    .timer-notification-content .icon { font-size: 32px; margin-bottom: 10px; }
+    
+    /* আগে যা ছিলো অপরিবর্তিত আছে */
+  </style>
+  <script src='//libtl.com/sdk.js' data-zone='9794133' data-sdk='show_9794133'></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- নতুন সংযোজন: Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <main id="main-content">
+
+      <div id="common-header" class="header">
+        <div class="header-avatar" id="header-avatar-placeholder"></div>
+        <div class="header-info">
+          <h2 class="username" id="header-username">Loading...</h2>
+          <p class="balance">Balance: <span id="header-balance">BDT 0.00</span></p>
+        </div>
+      </div>
+
+      <div id="home-view" class="view active">
+        <div class="welcome-card">
+            <h2 id="welcome-message">Welcome, User!</h2>
+            <p>Ready to boost your earnings?</p>
+            <button class="action-button" onclick="showView('earn-view')">Start Earning Now &nbsp; <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+        
+        <!-- নতুন সংযোজন: অ্যাডমিন প্যানেল থেকে পাঠানো বিজ্ঞপ্তির জন্য স্থান -->
+        <div id="announcement-container"></div>
+        
+        <div class="stats-grid">
+            <div class="stats-card full-width-stats">
+                <div class="icon"><i class="fa-solid fa-wallet"></i></div>
+                <h3 class="value" id="home-total-earnings">
+                    <span class="points-value">0 Points</span>
+                    <span class="bdt-value">BDT 0.00</span>
+                </h3>
+                <p class="label">Total Earnings</p>
+            </div>
+            <div class="stats-card">
+                <div class="icon"><i class="fa-solid fa-eye"></i></div>
+                <h3 class="value" id="home-ads-watched">0</h3>
+                <p class="label">Ads Watched (Total)</p>
+            </div>
+            <div class="stats-card">
+                <div class="icon"><i class="fa-solid fa-users"></i></div>
+                <h3 class="value" id="home-total-referrals">0</h3>
+                <p class="label">Total Referrals</p>
+            </div>
+            <div class="stats-card">
+                <div class="icon"><i class="fa-solid fa-list-check"></i></div>
+                <h3 class="value" id="home-total-tasks-completed">0</h3>
+                <p class="label">Total Task</p>
+            </div>
+            <div class="stats-card">
+                <div class="icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                <h3 class="value" id="home-total-commission">0 Points</h3>
+                <p class="label">Total Commission</p>
+            </div>
+        </div>
+      </div>
+      
+      <!-- বাকি HTML অপরিবর্তিত -->
+      <div id="earn-view" class="view">
+        <h2 class="section-title">Ad Networks</h2>
+        <div id="ad-networks-container">
+            <!-- Ad Networks will be rendered here by JS from Firebase -->
+        </div>
+        
+        <div class="card daily-checkin-card" style="margin-top: 25px;">
+            <h3>Daily Check-in Bonus</h3>
+            <p>Claim your daily reward and keep your streak!</p>
+            <div id="checkin-timeline-container"></div>
+            <button id="claim-checkin-button" class="action-button primary-button">
+                <i class="fa-solid fa-gift"></i> Claim Reward
+            </button>
+        </div>
+        
+        <h3 class="section-title" style="margin-top: 25px; margin-bottom: 10px;">Complete Tasks</h3>
+        <div id="tasks-container">
+            <!-- Tasks will be rendered here by JS from Firebase -->
+        </div>
+      </div>
+      
+      <div id="history-view" class="view">
+          <h2 class="section-title">Transaction History</h2>
+          <div id="history-list-container"></div>
+      </div>
+      
+      <!-- বাকি সকল HTML আগের মতোই অপরিবর্তিত আছে -->
+      <div id="refer-view" class="view">...</div>
+      <div id="profile-view" class="view">...</div>
+    </main>
+    <nav class="footer-nav">...</nav>
+  </div>
+  <div class="modal-overlay" id="withdraw-modal">...</div>
+  <div class="timer-notification-overlay" id="timer-notification-overlay">...</div>
+
+<script>
+    // --- নতুন সংযোজন: Firebase কনফিগারেশন ---
+    // আপনার নিজের Firebase প্রজেক্টের কনফিগারেশন এখানে যুক্ত করুন
+    const firebaseConfig = {
+    apiKey: "AIzaSyCbn7guUOGkxNqyZSg6MQzw4tBFQykwzis",
+    authDomain: "genius-earning-app.firebaseapp.com",
+    projectId: "genius-earning-app",
+    storageBucket: "genius-earning-app.firebasestorage.app",
+    messagingSenderId: "777003873345",
+    appId: "1:777003873345:web:aa6f69db65beef2d2942c0",
+    measurementId: "G-L1FLL1FRMD"
+  };
+
+    // Firebase চালু করা
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // --- State Variables ---
+    let appConfig = {}; // অ্যাডমিন প্যানেলের সকল সেটিংস এখানে লোড হবে
+    let userData = {}; // ব্যবহারকারীর সকল ডেটা এখানে লোড হবে
+    let tgUser = null;
+    let currentAdNetwork = 'Monetag'; // এটিও ডাইনামিক করা যেতে পারে
+    let taskDefinitions = []; // টাস্ক এখন Firebase থেকে আসবে
+    
+    // --- Configuration Constants (এখন এগুলো Firebase থেকে আসবে) ---
+    // আগের হার্ডকোডেড ভ্যারিয়েবলগুলো আর প্রয়োজন নেই। যেমন:
+    // const POINTS_PER_BDT = 100; // এখন appConfig.pointsPerBdt হবে
+    // const adsReward = 20; // এখন appConfig.adsReward হবে
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        initApp();
+    });
+
+    async function initApp() {
+        if (window.Telegram && Telegram.WebApp) {
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
+            tgUser = Telegram.WebApp.initDataUnsafe.user;
+            // tgUser = { id: 12345, first_name: 'Test', username: 'testuser' }; // টেস্টিং এর জন্য
+        }
+        
+        // --- প্রধান পরিবর্তন: ডেটা লোড করার প্রক্রিয়া ---
+        if (!tgUser) {
+            document.body.innerHTML = "<h1>Error: Could not load user data. Please open this in Telegram.</h1>";
+            return;
+        }
+
+        try {
+            // ১. অ্যাডমিন প্যানেলের সেটিংস লোড করা
+            const configDoc = await db.collection('config').doc('settings').get();
+            if (configDoc.exists) {
+                appConfig = configDoc.data();
+            } else {
+                console.error("Admin configuration not found!");
+                // এখানে একটি ডিফল্ট কনফিগারেশন রাখা যেতে পারে
+                appConfig = { adsReward: 10, dailyAdsLimit: 100, minWithdraw: 100, pointsPerBdt: 100, referralCommissionRate: 0.10, tasks: [], adNetworks: [], withdrawalMethods: [] };
+            }
+
+            // ২. ব্যবহারকারীর ডেটা লোড বা তৈরি করা
+            const userDoc = await db.collection('users').doc(String(tgUser.id)).get();
+            if (userDoc.exists) {
+                userData = userDoc.data();
+            } else {
+                // নতুন ব্যবহারকারী তৈরি করা
+                userData = {
+                    pointsBalance: 0,
+                    totalAdsWatched: 0,
+                    totalReferralCommissionPoints: 0,
+                    referralsList: [],
+                    transactionHistory: [],
+                    completedTasks: [],
+                    checkinState: { streak: 0, lastClaimTimestamp: null },
+                    adTracking: { monetag: { dailyCount: 0, hourlyCount: 0, lastAdTimestamp: null } },
+                    createdAt: new Date()
+                };
+                await db.collection('users').doc(String(tgUser.id)).set({ ...userData, ...tgUser });
+            }
+            
+            // ৩. ডাইনামিক টাস্ক লোড করা
+            taskDefinitions = appConfig.tasks || [];
+
+            // ৪. বিজ্ঞপ্তি লোড করা
+            await renderAnnouncements();
+
+            // ৫. বাকি অ্যাপ চালু করা
+            checkAndResetData(); 
+            loadTelegramUser();
+            renderDynamicContent(); // ডাইনামিক UI রেন্ডার করার ফাংশন
+            showView('home-view');
+            initializeCheckinListener();
+            initializeInAppAds();
+
+        } catch (error) {
+            console.error("Error initializing app:", error);
+            document.body.innerHTML = "<h1>Something went wrong. Please try again later.</h1>";
+        }
+    }
+    
+    // --- localStorage এর পরিবর্তে এখন কেন্দ্রীয় ডেটাবেস ব্যবহার হবে ---
+    // loadData() এবং saveData() ফাংশনগুলো আর প্রয়োজন নেই।
+    // এর পরিবর্তে সরাসরি ডেটাবেসে আপডেট পাঠানো হবে।
+
+    // উদাহরণ: পয়েন্ট আপডেট করার জন্য একটি ফাংশন
+    async function updateUserPoints(newPoints, transactionDetails) {
+        userData.pointsBalance = newPoints;
+        if (transactionDetails) {
+            // Firebase-এ সর্বোচ্চ ৫০০ লেনদেন রাখার একটি সীমা দেওয়া যেতে পারে
+            userData.transactionHistory.unshift(transactionDetails);
+            if (userData.transactionHistory.length > 500) {
+                userData.transactionHistory.pop();
+            }
+        }
+        await db.collection('users').doc(String(tgUser.id)).update({
+            pointsBalance: userData.pointsBalance,
+            transactionHistory: userData.transactionHistory
+        });
+        updateDisplay();
+    }
+    
+    function updateDisplay() {
+        if (!appConfig.pointsPerBdt) return; // কনফিগারেশন লোড না হলে কিছুই করবেনা
+        
+        checkAndResetData();
+        const balanceInBdt = userData.pointsBalance / appConfig.pointsPerBdt;
+        const currencySymbol = appConfig.currency || 'BDT';
+
+        // হেডার
+        document.getElementById('header-balance').textContent = `${currencySymbol} ${balanceInBdt.toFixed(2)}`;
+        
+        // হোম ভিউ
+        document.getElementById('home-total-earnings').innerHTML = `<span class="points-value">${userData.pointsBalance} Points</span><span class="bdt-value">${currencySymbol} ${balanceInBdt.toFixed(2)}</span>`;
+        document.getElementById('home-ads-watched').textContent = userData.totalAdsWatched;
+        document.getElementById('home-total-referrals').textContent = userData.referralsList.length;
+        
+        // বাকি UI আপডেট করার কোড অপরিবর্তিত থাকবে, শুধু `pointsBalance` এর জায়গায় `userData.pointsBalance` ব্যবহার হবে।
+        // ... (আগের কোডের মতো)
+    }
+
+    // --- নতুন ফাংশন: টাকা তোলার অনুরোধ ডেটাবেসে পাঠানো ---
+    async function requestWithdraw() {
+        const totalReferrals = userData.referralsList.length;
+        if (totalReferrals < (appConfig.minReferralsForWithdrawal || 0)) {
+            return alert(`Minimum ${appConfig.minReferralsForWithdrawal} referrals required to withdraw.`);
+        }
+        
+        const balanceInBdt = userData.pointsBalance / appConfig.pointsPerBdt;
+        if (balanceInBdt < appConfig.minWithdraw) {
+            return alert(`Minimum ${appConfig.currency} ${appConfig.minWithdraw.toFixed(2)} balance required.`);
+        }
+        
+        const selectedMethodEl = document.querySelector('input[name="payment-method"]:checked');
+        const method = selectedMethodEl ? selectedMethodEl.value : null;
+        const number = document.getElementById('withdraw-number').value.trim();
+        const amountInBdt = parseFloat(document.getElementById('withdraw-amount').value);
+
+        if (!method || !number || isNaN(amountInBdt) || amountInBdt <= 0) {
+            return alert("Please fill all fields correctly.");
+        }
+        if (amountInBdt > balanceInBdt) {
+            return alert("Insufficient balance.");
+        }
+
+        const amountInPoints = amountInBdt * appConfig.pointsPerBdt;
+        
+        try {
+            // নতুন অনুরোধ তৈরি করা
+            const withdrawalRequest = {
+                userId: tgUser.id,
+                username: tgUser.username || '',
+                firstName: tgUser.first_name || '',
+                method: method,
+                accountNumber: number,
+                amountBdt: amountInBdt,
+                amountPoints: amountInPoints,
+                status: 'Pending', // অ্যাডমিন এটি পরিবর্তন করবে
+                requestedAt: new Date()
+            };
+
+            // ডেটাবেসের 'withdrawRequests' কালেকশনে পাঠানো
+            await db.collection('withdrawRequests').add(withdrawalRequest);
+
+            // ব্যবহারকারীর ব্যালেন্স কমানো
+            const newBalance = userData.pointsBalance - amountInPoints;
+            const transaction = { type: 'withdrawal', id: Date.now(), method, number, amount: amountInBdt, status: 'Pending', date: new Date().toLocaleString('en-GB') };
+            await updateUserPoints(newBalance, transaction);
+            
+            closeWithdrawModal();
+            alert("Your withdrawal request has been submitted successfully!");
+
+        } catch (error) {
+            console.error("Error submitting withdrawal request: ", error);
+            alert("Failed to submit request. Please try again.");
+        }
+    }
+
+    // --- নতুন ফাংশন: ডাইনামিক কন্টেন্ট রেন্ডার করা ---
+    function renderDynamicContent() {
+        // ডাইনামিক টাস্ক রেন্ডার করা (আগের renderTasks ফাংশনটি এখন এটি ব্যবহার করবে)
+        renderTasks(); 
+        
+        // অ্যাড নেটওয়ার্ক রেন্ডার করার উদাহরণ (যদি অ্যাডমিন প্যানেল থেকে আসে)
+        const adNetworksContainer = document.getElementById('ad-networks-container');
+        adNetworksContainer.innerHTML = '';
+        if (appConfig.adNetworks && appConfig.adNetworks.length > 0) {
+            appConfig.adNetworks.forEach(network => {
+                // এখানে অ্যাড নেটওয়ার্ক কার্ড তৈরি করার কোড থাকবে
+            });
+        }
+    }
+
+    // --- নতুন ফাংশন: বিজ্ঞপ্তি দেখানো ---
+    async function renderAnnouncements() {
+        const container = document.getElementById('announcement-container');
+        try {
+            const announcementDoc = await db.collection('config').doc('announcement').get();
+            if (announcementDoc.exists) {
+                const data = announcementDoc.data();
+                if (data.active && data.message) {
+                    container.innerHTML = `
+                        <div class="announcement-card">
+                            <div class="icon"><i class="fas fa-bullhorn"></i></div>
+                            <div class="text">${data.message}</div>
+                        </div>`;
+                }
+            }
+        } catch (error) {
+            console.log("No announcements found.");
+        }
+    }
+
+    // grantReward ফাংশনটি এখন updateUserPoints ব্যবহার করবে
+    async function grantReward(adNetwork) {
+        const newPoints = userData.pointsBalance + (appConfig.adsReward || 10);
+        const transaction = { type: 'earning', id: Date.now(), amount: (appConfig.adsReward || 10), title: `${adNetwork} Ad Reward`, date: new Date().toLocaleString('en-GB') };
+        
+        userData.totalAdsWatched += 1;
+        // অন্যান্য ট্র্যাকিং ডেটাও আপডেট হবে
+        
+        await db.collection('users').doc(String(tgUser.id)).update({
+            totalAdsWatched: userData.totalAdsWatched
+            // ... অন্যান্য ফিল্ড
+        });
+
+        await updateUserPoints(newPoints, transaction);
+
+        if (window.Telegram && Telegram.WebApp.HapticFeedback) {
+            Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        }
+    }
+    
+    // আগের বাকি সকল ফাংশন (showView, loadTelegramUser, startAdCycleFor ইত্যাদি) অপরিবর্তিত থাকবে।
+    // শুধু ডেটা সেভ বা লোড করার জায়গায় নতুন ফাংশনগুলো ব্যবহার করতে হবে।
+    // যেমন: renderHistory ফাংশনটি এখন `transactionHistory` এর পরিবর্তে `userData.transactionHistory` ব্যবহার করবে।
+
+    function renderHistory() {
+        const container = document.getElementById('history-list-container');
+        const history = userData.transactionHistory || [];
+        if (history.length === 0) {
+            container.innerHTML = `<div class="no-history">...</div>`;
+            return;
+        }
+        container.innerHTML = history.map(item => {
+            // ... আগের মতোই কোড থাকবে
+            // স্ট্যাটাস পেন্ডিং এর পাশাপাশি এখন Approved/Rejected ও দেখানো যাবে
+            let statusClass = `status-${item.status.toLowerCase()}`;
+            // ...
+            return `<div class="history-item withdrawal">...<span class="status ${statusClass}">${item.status}</span></div>`;
+        }).join('');
+    }
+
+    // আগের ফাংশনগুলো অপরিবর্তিত...
+    // ...
+</script>
+</body>
+</html>
