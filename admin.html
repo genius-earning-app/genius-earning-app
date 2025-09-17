@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard (Firebase)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -53,16 +53,15 @@
         .nav-links li a i { margin-right: 15px; width: 20px; text-align: center; }
 
         .main-content { height: 100%; transition: margin-left 0.3s ease-in-out; display: flex; flex-direction: column; }
-        .app-header { display: flex; align-items: center; justify-content: space-between; padding: 15px; background-color: var(--card-bg); color: var(--text-dark); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); flex-shrink: 0; border-bottom: 1px solid var(--border-color);}
-        .header-left { display: flex; align-items: center; }
+        .app-header { display: flex; align-items: center; padding: 15px; background-color: var(--card-bg); color: var(--text-dark); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); flex-shrink: 0; border-bottom: 1px solid var(--border-color);}
         .menu-toggle { background: none; border: none; color: var(--text-dark); font-size: 1.5rem; cursor: pointer; margin-right: 20px; }
         .welcome-message { font-size: 1.2rem; font-weight: 500; }
-        
+
         .content-area { flex-grow: 1; padding: 20px; overflow-y: auto; }
         .page { display: none; }
         .page.active { display: block; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
+
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
         .dashboard-card { background-color: var(--card-bg); padding: 20px; border-radius: 8px; display: flex; align-items: center; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); }
         
@@ -81,35 +80,99 @@
         .section-header { padding: 15px 20px; background-color: var(--primary-bg); color: var(--text-light); border-radius: 8px 8px 0 0; font-size: 1.2rem; font-weight: 600; display: flex; align-items: center;}
         .section-header i { margin-right: 10px; }
         .section-body { padding: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #555; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 1rem; font-family: 'Hind Siliguri', sans-serif; }
+        .form-group textarea { resize: vertical; min-height: 100px; }
 
-        /* টেবিল এবং অন্যান্য UI এলিমেন্টের জন্য স্টাইল */
+        .update-btn { width: 100%; padding: 15px; background: var(--green); color: var(--text-light); border: none; border-radius: 5px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+        .update-btn:hover { background-color: #27ae60; }
+        
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+        .overlay.active { opacity: 1; visibility: visible; }
+        
+        .ad-network-setting, .task-setting, .method-setting {
+            display: grid; gap: 15px; align-items: center;
+            margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);
+        }
+        .ad-network-setting { grid-template-columns: 2fr 2fr auto auto; }
+        .task-setting { grid-template-columns: 2fr 2fr 1fr auto auto; }
+        .method-setting { grid-template-columns: 1fr 1fr 1fr auto auto; }
+
+        .btn-remove { padding: 8px 12px; background: var(--red); color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-add { padding: 10px; background: var(--blue); color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;}
+        hr { border: 0; border-top: 1px solid #ecf0f1; margin: 20px 0; }
+
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--green); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        .section-toggle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background-color: #f9f9f9; border-radius: 5px; }
+        .section-toggle label { font-weight: 600; margin: 0; }
+
+        .days-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+        .daily-checkin-item { display: flex; align-items: center; gap: 10px; border: 1px solid var(--border-color); border-radius: 5px; padding: 10px; }
+        .daily-checkin-item .form-group { flex-grow: 1; margin: 0; }
+        .daily-checkin-item label.day-label { font-weight: 600; margin-bottom: 8px; display: block; text-align: center;}
+
+        /* --- নতুন স্টাইল --- */
+        .table-container { overflow-x: auto; }
         .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .data-table th, .data-table td { padding: 12px; border: 1px solid var(--border-color); text-align: left; }
+        .data-table th, .data-table td { padding: 12px 15px; border: 1px solid var(--border-color); text-align: left; }
         .data-table th { background-color: var(--primary-bg); color: var(--text-light); }
-        .data-table tr:nth-child(even) { background-color: #f9f9f9; }
-        .action-btn { padding: 6px 10px; border: none; border-radius: 4px; color: white; cursor: pointer; margin-right: 5px; }
+        .data-table tbody tr:nth-child(even) { background-color: #f9f9f9; }
+        .action-btn { padding: 6px 10px; border: none; border-radius: 5px; color: white; cursor: pointer; margin-right: 5px; font-size: 0.9rem;}
         .btn-approve { background-color: var(--green); }
         .btn-reject { background-color: var(--red); }
         .btn-view { background-color: var(--blue); }
-        .status-tag { padding: 4px 8px; border-radius: 12px; font-weight: 600; color: white; font-size: 0.8rem; }
-        .status-pending { background-color: var(--yellow); color: #333; }
+        .btn-block { background-color: var(--orange); }
+        .btn-unblock { background-color: #7f8c8d; }
+        
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; color: white; white-space: nowrap;}
+        .status-pending { background-color: var(--yellow); color: var(--text-dark); }
         .status-approved { background-color: var(--green); }
         .status-rejected { background-color: var(--red); }
-        .search-bar { width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid var(--border-color); border-radius: 5px; }
-        .loading-spinner { text-align: center; padding: 40px; font-size: 1.5rem; }
+        .status-blocked { background-color: var(--text-dark); }
 
-        /* আগের সকল স্টাইল অপরিবর্তিত */
+        .tab-nav { display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+        .tab-btn { padding: 10px 20px; background: none; border: none; cursor: pointer; font-size: 1rem; font-weight: 600; color: var(--text-dark); border-radius: 5px 5px 0 0;}
+        .tab-btn.active { background-color: var(--primary-bg); color: var(--text-light); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1001; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { margin: 0; }
+        .modal-close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer;}
+        .user-details p { margin: 0 0 10px; }
+        .user-details strong { color: var(--primary-bg); margin-right: 8px;}
+        
+        @media (max-width: 768px) {
+            .ad-network-setting, .task-setting, .method-setting { grid-template-columns: 1fr; gap: 10px; }
+            .method-setting .btn-remove, .task-setting .btn-remove, .ad-network-setting .btn-remove { margin-top: 5px; width: 100%; }
+        }
     </style>
 </head>
 <body>
-    <div class="app-container" id="app-container">
+    <div class="app-container">
         <nav class="side-nav" id="sideNav">
             <div class="nav-header">Admin Panel</div>
             <ul class="nav-links">
                 <li><a href="#dashboard" class="nav-link active"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
-                <li><a href="#users" class="nav-link"><i class="fas fa-users"></i>User Management</a></li>
-                <li><a href="#withdraw-requests" class="nav-link"><i class="fas fa-inbox"></i>Withdrawal Requests</a></li>
+                <li><a href="#user-management" class="nav-link"><i class="fas fa-users-cog"></i>Users Management</a></li>
+                <li><a href="#withdraw-management" class="nav-link"><i class="fas fa-money-check-alt"></i>Withdraw Management</a></li>
                 <li><a href="#settings" class="nav-link"><i class="fas fa-cog"></i>Settings</a></li>
+                <hr style="margin: 10px 20px;">
+                <li><a href="#users" class="nav-link"><i class="fas fa-users"></i>(Legacy) Total Users</a></li>
+                <li><a href="#withdraw-requests" class="nav-link"><i class="fas fa-inbox"></i>(Legacy) Request</a></li>
+                <li><a href="#withdraw-pending" class="nav-link"><i class="fas fa-hourglass-half"></i>(Legacy) Pending</a></li>
+                <li><a href="#withdraw-approved" class="nav-link"><i class="fas fa-check-circle"></i>(Legacy) Approved</a></li>
+                <li><a href="#methods" class="nav-link"><i class="fas fa-credit-card"></i>(Legacy) Methods</a></li>
             </ul>
         </nav>
 
@@ -117,11 +180,8 @@
 
         <main class="main-content">
             <header class="app-header">
-                <div class="header-left">
-                    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
-                    <div class="welcome-message">Welcome, Admin!</div>
-                </div>
-                <!-- লগআউট বাটন রিমুভ করা হয়েছে -->
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <div class="welcome-message">Welcome, Admin!</div>
             </header>
 
             <div class="content-area">
@@ -129,62 +189,144 @@
                 <div id="dashboard" class="page active">
                     <div class="dashboard-grid">
                         <div class="dashboard-card"><div class="icon users"><i class="fas fa-users"></i></div><div class="card-content"><h3 id="db-total-users">0</h3><p>Total Users</p></div></div>
-                        <div class="dashboard-card"><div class="icon request"><i class="fas fa-inbox"></i></div><div class="card-content"><h3 id="db-pending-withdraw">0</h3><p>Pending Withdrawals</p></div></div>
-                        <div class="dashboard-card"><div class="icon approved"><i class="fas fa-check-circle"></i></div><div class="card-content"><h3 id="db-approved-withdraw">0</h3><p>Approved Withdrawals</p></div></div>
-                        <div class="dashboard-card"><div class="icon earnings"><i class="fas fa-wallet"></i></div><div class="card-content"><h3 id="db-total-earnings">BDT 0</h3><p>Total User Points (BDT)</p></div></div>
+                        <div class="dashboard-card"><div class="icon ads"><i class="fas fa-eye"></i></div><div class="card-content"><h3 id="db-ads-watched">0</h3><p>Total Ads Watched</p></div></div>
+                        <div class="dashboard-card"><div class="icon earnings"><i class="fas fa-wallet"></i></div><div class="card-content"><h3 id="db-total-earnings">BDT 0</h3><p>Total Earnings</p></div></div>
+                        <div class="dashboard-card"><div class="icon commission"><i class="fas fa-percent"></i></div><div class="card-content"><h3 id="db-total-commission">BDT 0</h3><p>Total Commission</p></div></div>
+                        <div class="dashboard-card"><div class="icon referrals"><i class="fas fa-user-plus"></i></div><div class="card-content"><h3 id="db-total-referrals">0</h3><p>Total Referrals</p></div></div>
+                        <div class="dashboard-card"><div class="icon request"><i class="fas fa-inbox"></i></div><div class="card-content"><h3 id="db-req-withdraw">0</h3><p>Pending Requests</p></div></div>
+                        <div class="dashboard-card"><div class="icon pending"><i class="fas fa-hourglass-half"></i></div><div class="card-content"><h3 id="db-pending-withdraw">0</h3><p>Pending Withdrawal (Legacy)</p></div></div>
+                        <div class="dashboard-card"><div class="icon approved"><i class="fas fa-check-circle"></i></div><div class="card-content"><h3 id="db-approved-withdraw">0</h3><p>Approved Withdrawal</p></div></div>
+                        <div class="dashboard-card"><div class="icon methods"><i class="fas fa-credit-card"></i></div><div class="card-content"><h3 id="db-withdraw-methods">0</h3><p>Withdrawal Methods</p></div></div>
+                        <div class="dashboard-card"><div class="icon settings"><i class="fas fa-cog"></i></div><div class="card-content" style="cursor: pointer;" onclick="navigateToPage('settings')"><h3>Settings</h3><p>Manage App Settings</p></div></div>
                     </div>
                 </div>
 
                 <!-- User Management Page -->
-                <div id="users" class="page">
-                    <h2>User Management</h2>
-                    <input type="text" id="user-search" class="search-bar" placeholder="Search by User ID or Username...">
-                    <div id="users-table-container"></div>
+                <div id="user-management" class="page">
+                    <div class="section-card">
+                        <div class="section-header"><i class="fas fa-users"></i>Users Management</div>
+                        <div class="section-body">
+                            <div class="form-group">
+                                <label for="userSearch">Search User (by Name, Username, or ID)</label>
+                                <input type="text" id="userSearch" placeholder="Search...">
+                            </div>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>User ID</th>
+                                            <th>Name</th>
+                                            <th>Balance (Points)</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="users-table-body">
+                                        <!-- User data will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Withdrawal Requests Page -->
-                <div id="withdraw-requests" class="page">
-                    <h2>Withdrawal Requests</h2>
-                    <div id="withdraw-table-container"></div>
+                <!-- Withdraw Management Page -->
+                <div id="withdraw-management" class="page">
+                    <div class="section-card">
+                        <div class="section-header"><i class="fas fa-money-check-alt"></i>Withdrawal Management</div>
+                        <div class="section-body">
+                            <nav class="tab-nav" id="withdraw-tab-nav">
+                                <button class="tab-btn active" data-status="Pending">Pending</button>
+                                <button class="tab-btn" data-status="Approved">Approved</button>
+                                <button class="tab-btn" data-status="Rejected">Rejected</button>
+                            </nav>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>User ID</th>
+                                            <th>Date</th>
+                                            <th>Method</th>
+                                            <th>Account</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="withdraw-table-body">
+                                        <!-- Withdraw data will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Other Pages (Placeholder Content) -->
+                <div id="users" class="page"><h2>Total Users</h2><p>এখানে সকল ইউজারদের তালিকা দেখানো হবে।</p></div>
+                <div id="withdraw-requests" class="page"><h2>Request Withdrawal</h2><p>এখানে নতুন উইথড্র অনুরোধের তালিকা দেখানো হবে।</p></div>
+                <div id="withdraw-pending" class="page"><h2>Pending Withdrawal</h2><p>এখানে পেন্ডিং উইথড্রগুলোর তালিকা দেখানো হবে।</p></div>
+                <div id="withdraw-approved" class="page"><h2>Approved Withdrawal</h2><p>এখানে অ্যাপ্রুভড উইথড্রগুলোর তালিকা দেখানো হবে।</p></div>
+                <div id="methods" class="page"><h2>Withdrawal Methods</h2><p>এখানে উইথড্র মেথড ম্যানেজ করার অপশন থাকবে।</p></div>
 
                 <!-- Settings Page -->
                 <div id="settings" class="page">
                     <form id="settingsForm">
-                        <!-- Announcement Card -->
+                        <!-- App Control Settings -->
                         <div class="section-card">
-                            <div class="section-header"><i class="fas fa-bullhorn"></i>Manage Announcement</div>
+                            <div class="section-header"><i class="fas fa-bullhorn"></i>App Control</div>
                             <div class="section-body">
                                 <div class="form-group">
-                                    <label for="announcement-message">Announcement Message</label>
-                                    <textarea id="announcement-message" rows="3" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; font-family: 'Hind Siliguri', sans-serif;"></textarea>
+                                    <label for="appVersion">App Version</label>
+                                    <input type="text" id="appVersion" placeholder="e.g., 1.0.0">
                                 </div>
-                                <div class="section-toggle" style="display: flex; justify-content: space-between; align-items: center;">
-                                    <label>Enable Announcement</label>
-                                    <label class="switch"><input type="checkbox" id="announcement-enabled"><span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;" class="slider"></span></label>
+                                <div class="form-group">
+                                    <label for="announcement">Announcement / Notice</label>
+                                    <textarea id="announcement" placeholder="অ্যাপের ব্যবহারকারীদের জন্য ঘোষণা..."></textarea>
                                 </div>
                             </div>
                         </div>
 
                         <!-- General Settings -->
                         <div class="section-card">
-                            <div class="section-header"><i class="fas fa-cogs"></i>General Settings</div>
+                            <div class="section-header"><i class="fas fa-cogs"></i>Manage Settings</div>
                             <div class="section-body">
-                                <div class="form-group"><label for="adsReward">Ads Reward (Points)</label><input type="number" id="adsReward"></div>
-                                <div class="form-group"><label for="dailyAdsLimit">Daily Ads Limit</label><input type="number" id="dailyAdsLimit"></div>
-                                <div class="form-group"><label for="referralCommissionRate">Referral Commission in %</label><input type="number" id="referralCommissionRate"></div>
-                                <div class="form-group"><label for="minWithdraw">Minimum Withdrawal Limit (BDT)</label><input type="number" id="minWithdraw"></div>
-                                <div class="form-group"><label for="pointsPerBdt">Points per BDT</label><input type="number" id="pointsPerBdt"></div>
+                                <div class="form-group"><label for="adsReward">Ads Reward</label><input type="number" step="0.01" id="adsReward"></div>
+                                <div class="form-group"><label for="adsLimit">Daily Ads Limit</label><input type="number" id="adsLimit"></div>
+                                <div class="form-group"><label for="refferBonus">Referral Commission in %</label><input type="number" id="refferBonus"></div>
+                                <div class="form-group"><label for="refferJoinBonus">Referral Join Bonus</label><input type="number" step="0.01" id="refferJoinBonus"></div>
                                 <div class="form-group"><label for="currency">Currency Symbol</label><input type="text" id="currency"></div>
                             </div>
                         </div>
 
-                        <!-- Dynamic Task Management -->
+                        <!-- Ad Networks Settings -->
+                        <div class="section-card">
+                            <div class="section-header"><i class="fas fa-ad"></i>Ad Network Zone IDs</div>
+                            <div class="section-body" id="ad-networks-section"></div>
+                        </div>
+
+                        <!-- Daily Check-in Settings -->
+                        <div class="section-card">
+                            <div class="section-header"><i class="fas fa-calendar-check"></i>Daily Check-in Bonus</div>
+                            <div class="section-body" id="daily-checkin-section"></div>
+                        </div>
+                        
+                        <!-- Tasks Settings -->
                         <div class="section-card">
                             <div class="section-header"><i class="fas fa-tasks"></i>Complete Tasks</div>
-                            <div class="section-body" id="tasks-section">
-                                <!-- Tasks will be rendered here dynamically -->
-                                <button type="button" class="btn-add" onclick="addTask()"><i class="fas fa-plus"></i> Add Task</button>
+                            <div class="section-body" id="tasks-section"></div>
+                        </div>
+
+                        <!-- Withdrawal Settings -->
+                        <div class="section-card">
+                            <div class="section-header"><i class="fas fa-wallet"></i>Withdrawal Settings</div>
+                            <div class="section-body">
+                                <div class="form-group">
+                                    <label for="minWithdraw">Minimum Withdrawal Limit</label>
+                                    <input type="number" id="minWithdraw">
+                                </div>
+                                <hr>
+                                <div id="withdrawal-methods-section"></div>
                             </div>
                         </div>
                         
@@ -195,13 +337,31 @@
         </main>
     </div>
 
-<!-- Firebase SDK (auth SDK বাদ দেওয়া হয়েছে) -->
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <!-- User Edit Modal -->
+    <div class="modal-overlay" id="user-edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-user-name">Edit User</h3>
+                <button class="modal-close-btn" onclick="closeUserEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="user-details" id="user-details-content"></div>
+                <hr>
+                <div class="form-group">
+                    <label for="points-to-add">Add/Subtract Points (e.g., 100 or -50)</label>
+                    <input type="number" id="points-to-add" placeholder="0">
+                </div>
+                <button class="update-btn" id="save-user-changes-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
 
-<script>
-// --- Firebase কনফিগারেশন ---
-const firebaseConfig = {
+
+<!-- Firebase SDKs -->
+<script type="module">
+    // --- Firebase Configuration ---
+    // TODO: আপনার নিজের Firebase কনফিগারেশন এখানে যোগ করুন
+    const firebaseConfig = {
     apiKey: "AIzaSyCbn7guUOGkxNqyZSg6MQzw4tBFQykwzis",
     authDomain: "genius-earning-app.firebaseapp.com",
     projectId: "genius-earning-app",
@@ -211,253 +371,505 @@ const firebaseConfig = {
     measurementId: "G-L1FLL1FRMD"
   };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+    // Firebase মডিউল import করুন
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, set, onValue, update, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Auth চেক বাদ দিয়ে সরাসরি অ্যাপ চালু করা হচ্ছে
-    initApp();
-});
-
-// --- মূল অ্যাপের কোড ---
-let appConfig = {};
-let allUsers = []; 
-let allWithdrawals = [];
-
-function initApp() {
-    loadConfigFromFirebase();
-    updateDashboardDataFromFirebase();
+    // Firebase অ্যাপটি চালু করুন
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
     
-    // UI ইভেন্ট লিসেনার
-    const menuToggle = document.getElementById('menuToggle');
-    const sideNav = document.getElementById('sideNav');
-    const overlay = document.getElementById('overlay');
-    const navLinks = document.querySelectorAll('.nav-link');
+    // --- Database References ---
+    const dbRef = ref(database);
+    const configRef = ref(database, 'app/config'); 
+    const usersRef = ref(database, 'app/users');
+    const withdrawRequestsRef = ref(database, 'app/withdraw_requests');
 
-    menuToggle.addEventListener('click', toggleMenu);
-    overlay.addEventListener('click', toggleMenu);
-    navLinks.forEach(link => link.addEventListener('click', handleNavClick));
-    document.getElementById('settingsForm').addEventListener('submit', saveAllSettingsToFirebase);
-}
+    document.addEventListener('DOMContentLoaded', function () {
+        // --- Elements ---
+        const menuToggle = document.getElementById('menuToggle');
+        const sideNav = document.getElementById('sideNav');
+        const overlay = document.getElementById('overlay');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const pages = document.querySelectorAll('.page');
+        const settingsForm = document.getElementById('settingsForm');
 
-// --- ডেটাবেস থেকে ডেটা লোড ও সেভ করার ফাংশন ---
+        // --- App State & Default Config ---
+        let appConfig = {};
+        let allUsers = {};
+        let allWithdrawals = {};
+        let currentWithdrawFilter = 'Pending';
+        let currentEditingUserId = null;
 
-async function loadConfigFromFirebase() {
-    try {
-        const configDoc = await db.collection('config').doc('settings').get();
-        const announcementDoc = await db.collection('config').doc('announcement').get();
+        const DEFAULT_CONFIG = {
+            adsReward: 1.0, adsLimit: 100, refferBonus: 10,
+            refferJoinBonus: 5.0, currency: 'BDT', minWithdraw: 500,
+            appVersion: '1.0.0', announcement: '',
+            
+            adNetworksEnabled: true,
+            adNetworks: [ { name: 'Monetag Ads', zoneId: '9704633', enabled: true } ],
+            
+            dailyCheckinEnabled: true,
+            dailyCheckinRewards: Array.from({ length: 10 }, (_, i) => ({ day: i + 1, reward: (i + 1) * 2 })),
+            
+            tasksEnabled: true,
+            tasks: [
+                { id: Date.now() + 1, title: 'Join Telegram', link: 'https://t.me/your_channel', reward: 5, enabled: true }
+            ],
+            
+            withdrawalMethodsEnabled: true,
+            withdrawalMethods: [
+                { name: 'bKash', bn_name: 'বিকাশ', logo: 'bkash.png', enabled: true }
+            ]
+        };
 
-        if (configDoc.exists) {
-            appConfig = configDoc.data();
-        } else {
-            appConfig = { tasks: [], adNetworks: [], withdrawalMethods: [] };
+        // --- Initialization ---
+        function init() {
+            // Load App Config
+            onValue(configRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    appConfig = { ...DEFAULT_CONFIG, ...data }; // Merge with defaults to prevent errors
+                } else {
+                    console.log("Firebase-এ কোনো কনফিগারেশন পাওয়া যায়নি। ডিফল্ট কনফিগারেশন ব্যবহার এবং সেভ করা হচ্ছে।");
+                    appConfig = { ...DEFAULT_CONFIG };
+                    set(configRef, appConfig);
+                }
+                renderAllSettings();
+                updateDashboardData();
+            }, (err) => console.error("Firebase থেকে config রিড করতে সমস্যা হয়েছে:", err));
+            
+            // Load Users Data
+            onValue(usersRef, (snapshot) => {
+                allUsers = snapshot.val() || {};
+                renderUsers();
+                updateDashboardData();
+            }, (err) => console.error("Firebase থেকে users রিড করতে সমস্যা হয়েছে:", err));
+            
+            // Load Withdrawals Data
+            onValue(withdrawRequestsRef, (snapshot) => {
+                allWithdrawals = snapshot.val() || {};
+                renderWithdrawals();
+                updateDashboardData();
+            }, (err) => console.error("Firebase থেকে withdrawals রিড করতে সমস্যা হয়েছে:", err));
+
+            menuToggle.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+            navLinks.forEach(link => link.addEventListener('click', handleNavClick));
+            settingsForm.addEventListener('submit', saveAllSettings);
+
+            // Event listener for withdraw tabs
+            document.getElementById('withdraw-tab-nav').addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    document.querySelectorAll('#withdraw-tab-nav .tab-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentWithdrawFilter = e.target.dataset.status;
+                    renderWithdrawals();
+                }
+            });
+
+            // Event listener for user search
+            document.getElementById('userSearch').addEventListener('input', renderUsers);
+
+            // Event listener for save user changes button in modal
+            document.getElementById('save-user-changes-btn').addEventListener('click', saveUserChanges);
         }
         
-        renderAllSettings(); 
-
-        if (announcementDoc.exists) {
-            const announcementData = announcementDoc.data();
-            document.getElementById('announcement-message').value = announcementData.message || '';
-            document.getElementById('announcement-enabled').checked = announcementData.active || false;
-        }
-
-    } catch (error) {
-        console.error("Error loading config:", error);
-        alert("Could not load app settings.");
-    }
-}
-
-async function saveAllSettingsToFirebase(e) {
-    e.preventDefault();
-    
-    // UI থেকে টাস্ক ডেটা সংগ্রহ
-    let tasks = [];
-    document.querySelectorAll('.task-setting').forEach((taskEl, index) => {
-        tasks.push({
-            id: taskEl.querySelector(`[data-type="taskId"]`).value || Date.now() + index,
-            name: taskEl.querySelector(`[data-type="taskName"]`).value,
-            description: taskEl.querySelector(`[data-type="taskDesc"]`).value,
-            link: taskEl.querySelector(`[data-type="taskLink"]`).value,
-            reward: parseFloat(taskEl.querySelector(`[data-type="taskReward"]`).value),
-            type: 'one_time' // প্রয়োজন অনুযায়ী পরিবর্তন করা যাবে
-        });
-    });
-
-    const updatedConfig = {
-        adsReward: parseFloat(document.getElementById('adsReward').value),
-        dailyAdsLimit: parseInt(document.getElementById('dailyAdsLimit').value),
-        referralCommissionRate: parseInt(document.getElementById('referralCommissionRate').value),
-        minWithdraw: parseFloat(document.getElementById('minWithdraw').value),
-        pointsPerBdt: parseInt(document.getElementById('pointsPerBdt').value),
-        currency: document.getElementById('currency').value,
-        tasks: tasks,
-    };
-
-    const announcementData = {
-        message: document.getElementById('announcement-message').value,
-        active: document.getElementById('announcement-enabled').checked
-    };
-    
-    try {
-        await db.collection('config').doc('settings').set(updatedConfig, { merge: true });
-        await db.collection('config').doc('announcement').set(announcementData);
-        alert('Settings and Announcement Updated Successfully!');
-    } catch (error) {
-        console.error("Error saving settings:", error);
-        alert("Failed to save settings.");
-    }
-}
-
-async function updateDashboardDataFromFirebase() {
-    try {
-        const usersSnapshot = await db.collection('users').get();
-        const withdrawSnapshot = await db.collection('withdrawRequests').get();
-        
-        const totalUsers = usersSnapshot.size;
-        let pendingCount = 0;
-        let approvedCount = 0;
-        let totalUserPoints = 0;
-
-        withdrawSnapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.status === 'Pending') pendingCount++;
-            if (data.status === 'Approved') approvedCount++;
-        });
-        
-        usersSnapshot.forEach(doc => {
-            totalUserPoints += doc.data().pointsBalance || 0;
-        });
-        
-        const pointsPerBdt = appConfig.pointsPerBdt || 100;
-        const totalEarningsBdt = (totalUserPoints / pointsPerBdt).toFixed(2);
-
-        document.getElementById('db-total-users').textContent = totalUsers;
-        document.getElementById('db-pending-withdraw').textContent = pendingCount;
-        document.getElementById('db-approved-withdraw').textContent = approvedCount;
-        document.getElementById('db-total-earnings').textContent = `BDT ${totalEarningsBdt}`;
-    } catch (error) {
-        console.error("Error updating dashboard data:", error);
-    }
-}
-
-function handleNavClick(e) {
-    e.preventDefault();
-    const targetId = this.getAttribute('href').substring(1);
-    navigateToPage(targetId);
-
-    if (targetId === 'users') renderUsersPage();
-    if (targetId === 'withdraw-requests') renderWithdrawalsPage();
-    
-    if (window.innerWidth <= 768) toggleMenu();
-}
-
-async function renderUsersPage() {
-    const container = document.getElementById('users-table-container');
-    container.innerHTML = `<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading Users...</div>`;
-    
-    const snapshot = await db.collection('users').get();
-    allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-    let tableHtml = `<table class="data-table"><thead><tr><th>User ID</th><th>Username</th><th>Balance (Points)</th><th>Joined</th><th>Actions</th></tr></thead><tbody>`;
-    allUsers.forEach(user => {
-        tableHtml += `<tr><td>${user.id}</td><td>@${user.username || 'N/A'}</td><td>${user.pointsBalance || 0}</td><td>${user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</td><td><button class="action-btn btn-view" onclick="alert('View user ${user.id}')">View</button></td></tr>`;
-    });
-    tableHtml += `</tbody></table>`;
-    container.innerHTML = tableHtml;
-}
-
-async function renderWithdrawalsPage() {
-    const container = document.getElementById('withdraw-table-container');
-    container.innerHTML = `<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading Requests...</div>`;
-    
-    const snapshot = await db.collection('withdrawRequests').orderBy('requestedAt', 'desc').get();
-    allWithdrawals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    
-    let tableHtml = `<table class="data-table"><thead><tr><th>User</th><th>Amount (BDT)</th><th>Method</th><th>Account</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
-    allWithdrawals.forEach(req => {
-        tableHtml += `<tr><td>@${req.username || req.userId}</td><td>${req.amountBdt.toFixed(2)}</td><td>${req.method}</td><td>${req.accountNumber}</td><td><span class="status-tag status-${req.status.toLowerCase()}">${req.status}</span></td><td>
-            ${req.status === 'Pending' ? `<button class="action-btn btn-approve" onclick="updateWithdrawalStatus('${req.id}', 'Approved')">Approve</button><button class="action-btn btn-reject" onclick="updateWithdrawalStatus('${req.id}', 'Rejected')">Reject</button>` : 'Processed'}
-        </td></tr>`;
-    });
-    tableHtml += `</tbody></table>`;
-    container.innerHTML = tableHtml;
-}
-
-window.updateWithdrawalStatus = async (requestId, newStatus) => {
-    if (!confirm(`Are you sure you want to set this request to "${newStatus}"?`)) return;
-
-    try {
-        await db.collection('withdrawRequests').doc(requestId).update({ status: newStatus });
-        
-        if (newStatus === 'Rejected') {
-            const request = allWithdrawals.find(w => w.id === requestId);
-            if(request) {
-                const userRef = db.collection('users').doc(String(request.userId));
-                await userRef.update({
-                    pointsBalance: firebase.firestore.FieldValue.increment(request.amountPoints)
-                });
-                alert('Request rejected and points refunded to user.');
+        // --- Data Management (Firebase) ---
+        async function saveConfigToFirebase() {
+            try {
+                await set(configRef, appConfig);
+                alert('সেটিংস সফলভাবে Firebase-এ আপডেট করা হয়েছে!');
+            } catch (error) {
+                console.error("Firebase-এ সেটিংস সেভ করতে সমস্যা হয়েছে: ", error);
+                alert('সেটিংস আপডেট করা যায়নি। কনসোল চেক করুন।');
             }
         }
         
-        renderWithdrawalsPage(); 
-        updateDashboardDataFromFirebase();
-    } catch (error) {
-        console.error("Error updating status:", error);
-        alert("Failed to update status.");
-    }
-};
+        // --- Master Render Function ---
+        function renderAllSettings() {
+            if (!appConfig || Object.keys(appConfig).length === 0) return;
+            document.getElementById('appVersion').value = appConfig.appVersion || '1.0.0';
+            document.getElementById('announcement').value = appConfig.announcement || '';
+            document.getElementById('adsReward').value = appConfig.adsReward;
+            document.getElementById('adsLimit').value = appConfig.adsLimit;
+            document.getElementById('refferBonus').value = appConfig.refferBonus;
+            document.getElementById('refferJoinBonus').value = appConfig.refferJoinBonus;
+            document.getElementById('currency').value = appConfig.currency;
+            document.getElementById('minWithdraw').value = appConfig.minWithdraw;
 
-function toggleMenu() { document.getElementById('sideNav').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); }
-function navigateToPage(targetId) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(targetId).classList.add('active');
-    document.querySelectorAll('.nav-link').forEach(l => {
-        l.classList.toggle('active', l.getAttribute('href') === `#${targetId}`);
+            renderAdNetworksSection();
+            renderDailyCheckinSection();
+            renderTasksSection();
+            renderWithdrawalMethodsSection();
+        }
+
+        // --- Withdraw Management ---
+        function renderWithdrawals() {
+            const tbody = document.getElementById('withdraw-table-body');
+            tbody.innerHTML = '<tr><td colspan="7">Loading...</td></tr>';
+            const filteredWithdrawals = Object.entries(allWithdrawals).filter(([id, data]) => data.status === currentWithdrawFilter);
+
+            if (filteredWithdrawals.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7">No ${currentWithdrawFilter} requests found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filteredWithdrawals.map(([id, req]) => `
+                <tr>
+                    <td>${req.userId || 'N/A'}</td>
+                    <td>${new Date(req.date).toLocaleString()}</td>
+                    <td>${req.method}</td>
+                    <td>${req.number}</td>
+                    <td>${req.amount} ${appConfig.currency || ''}</td>
+                    <td><span class="status-badge status-${req.status.toLowerCase()}">${req.status}</span></td>
+                    <td>
+                        ${req.status === 'Pending' ? `
+                            <button class="action-btn btn-approve" onclick="window.manageWithdrawal('${id}', 'Approved')">Approve</button>
+                            <button class="action-btn btn-reject" onclick="window.manageWithdrawal('${id}', 'Rejected')">Reject</button>
+                        ` : '-'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        window.manageWithdrawal = async (requestId, newStatus) => {
+            if (!confirm(`Are you sure you want to ${newStatus.toLowerCase()} this request?`)) return;
+            try {
+                const requestRef = ref(database, `app/withdraw_requests/${requestId}`);
+                await update(requestRef, { status: newStatus });
+                
+                // If rejected, refund the points to the user
+                if(newStatus === 'Rejected'){
+                    const requestSnapshot = await get(requestRef);
+                    const requestData = requestSnapshot.val();
+                    const userRef = ref(database, `app/users/${requestData.userId}`);
+                    const userSnapshot = await get(userRef);
+                    if(userSnapshot.exists()){
+                        const userData = userSnapshot.val();
+                        const pointsToRefund = requestData.amount * (appConfig.pointsPerBdt || 100); // Assuming 100 points = 1 BDT
+                        await update(userRef, {
+                            balance: (userData.balance || 0) + pointsToRefund
+                        });
+                        alert(`Request rejected and ${pointsToRefund} points have been refunded to the user.`);
+                    }
+                } else {
+                     alert(`Request has been successfully ${newStatus.toLowerCase()}.`);
+                }
+
+            } catch (error) {
+                console.error("Error updating withdrawal status:", error);
+                alert("Failed to update status.");
+            }
+        };
+
+        // --- User Management ---
+        function renderUsers() {
+            const tbody = document.getElementById('users-table-body');
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+            tbody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+
+            const filteredUsers = Object.entries(allUsers).filter(([id, data]) => {
+                if (!searchTerm) return true;
+                const name = (data.profile?.firstName || '') + ' ' + (data.profile?.lastName || '');
+                return id.toLowerCase().includes(searchTerm) ||
+                       name.toLowerCase().includes(searchTerm) ||
+                       (data.profile?.username || '').toLowerCase().includes(searchTerm);
+            });
+            
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No users found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredUsers.map(([id, user]) => `
+                <tr>
+                    <td>${id}</td>
+                    <td>${(user.profile?.firstName || 'N/A')} ${(user.profile?.lastName || '')}</td>
+                    <td>${user.balance || 0}</td>
+                    <td>
+                        <span class="status-badge ${user.isBlocked ? 'status-blocked' : 'status-approved'}">
+                            ${user.isBlocked ? 'Blocked' : 'Active'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-btn btn-view" onclick="window.openUserEditModal('${id}')">View/Edit</button>
+                        <button class="action-btn ${user.isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="window.toggleUserBlock('${id}', ${user.isBlocked || false})">
+                            ${user.isBlocked ? 'Unblock' : 'Block'}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.openUserEditModal = (userId) => {
+            const user = allUsers[userId];
+            if (!user) return;
+            currentEditingUserId = userId;
+
+            const modal = document.getElementById('user-edit-modal');
+            document.getElementById('modal-user-name').textContent = `Edit User: ${user.profile?.firstName || userId}`;
+            const detailsContent = document.getElementById('user-details-content');
+            detailsContent.innerHTML = `
+                <p><strong>User ID:</strong> ${userId}</p>
+                <p><strong>Name:</strong> ${user.profile?.firstName || ''} ${user.profile?.lastName || ''}</p>
+                <p><strong>Username:</strong> @${user.profile?.username || 'N/A'}</p>
+                <p><strong>Current Balance:</strong> ${user.balance || 0} points</p>
+            `;
+            document.getElementById('points-to-add').value = '';
+            modal.classList.add('active');
+        };
+
+        window.closeUserEditModal = () => {
+            document.getElementById('user-edit-modal').classList.remove('active');
+            currentEditingUserId = null;
+        };
+
+        async function saveUserChanges() {
+            if (!currentEditingUserId) return;
+            const pointsStr = document.getElementById('points-to-add').value;
+            const pointsToAdd = parseInt(pointsStr, 10);
+            
+            if (isNaN(pointsToAdd)) {
+                return alert("Please enter a valid number for points.");
+            }
+
+            try {
+                const userRef = ref(database, `app/users/${currentEditingUserId}`);
+                const userSnapshot = await get(userRef);
+                if (userSnapshot.exists()) {
+                    const currentBalance = userSnapshot.val().balance || 0;
+                    const newBalance = currentBalance + pointsToAdd;
+                    await update(userRef, { balance: newBalance });
+                    alert(`User balance updated successfully to ${newBalance} points.`);
+                    closeUserEditModal();
+                }
+            } catch (error) {
+                console.error("Error updating user balance:", error);
+                alert("Failed to update balance.");
+            }
+        }
+
+        window.toggleUserBlock = async (userId, isCurrentlyBlocked) => {
+            const action = isCurrentlyBlocked ? 'unblock' : 'block';
+            if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+
+            try {
+                const userRef = ref(database, `app/users/${userId}`);
+                await update(userRef, { isBlocked: !isCurrentlyBlocked });
+                alert(`User has been successfully ${action}ed.`);
+            } catch (error) {
+                console.error(`Error ${action}ing user:`, error);
+                alert(`Failed to ${action} user.`);
+            }
+        };
+
+        // --- Section Specific Render Functions (Unchanged) ---
+        function renderSection(containerId, list, config) {
+            const container = document.getElementById(containerId);
+            const listHtml = list.map(config.itemRenderer).join('');
+            
+            container.innerHTML = `
+                <div class="section-toggle">
+                    <label>${config.toggleLabel}</label>
+                    <label class="switch"><input type="checkbox" id="${config.enabledId}" ${appConfig[config.enabledFlag] ? 'checked' : ''}><span class="slider"></span></label>
+                </div>
+                <div id="${config.listContainerId}" style="padding-top: 15px; border-top: 1px solid #eee; margin-top: 15px;">
+                    ${listHtml}
+                    <button type="button" class="btn-add" onclick="${config.addFunction}"><i class="fas fa-plus"></i> ${config.addButtonLabel}</button>
+                </div>`;
+                
+            const switchEl = document.getElementById(config.enabledId);
+            const listContainerEl = document.getElementById(config.listContainerId);
+
+            listContainerEl.style.display = switchEl.checked ? 'block' : 'none';
+            switchEl.addEventListener('change', () => {
+                listContainerEl.style.display = switchEl.checked ? 'block' : 'none';
+            });
+        }
+
+        function renderAdNetworksSection() {
+            renderSection('ad-networks-section', appConfig.adNetworks || [], {
+                toggleLabel: 'Enable Ad Networks Feature',
+                enabledId: 'adNetworksEnabled',
+                enabledFlag: 'adNetworksEnabled',
+                listContainerId: 'ad-networks-list',
+                itemRenderer: (item, index) => `
+                    <div class="ad-network-setting">
+                        <input type="text" data-type="adNetworkName" data-index="${index}" value="${item.name}" placeholder="Ad Network Name">
+                        <input type="text" data-type="adNetworkZoneId" data-index="${index}" value="${item.zoneId}" placeholder="Zone ID">
+                        <label class="switch"><input type="checkbox" data-type="adNetworkItemEnabled" data-index="${index}" ${item.enabled ? 'checked' : ''}><span class="slider"></span></label>
+                        <button type="button" class="btn-remove" onclick="removeAdNetwork(${index})">&times;</button>
+                    </div>`,
+                addFunction: 'addAdNetwork()',
+                addButtonLabel: 'Add Ad Network'
+            });
+        }
+        window.addAdNetwork = () => { if (!appConfig.adNetworks) appConfig.adNetworks = []; appConfig.adNetworks.push({ name: '', zoneId: '', enabled: true }); renderAdNetworksSection(); };
+        window.removeAdNetwork = (index) => { if(confirm('Are you sure?')) { appConfig.adNetworks.splice(index, 1); renderAdNetworksSection(); } };
+
+        function renderDailyCheckinSection() {
+            const container = document.getElementById('daily-checkin-section');
+            container.innerHTML = `
+                <div class="section-toggle">
+                    <label>Enable Daily Check-in Feature</label>
+                    <label class="switch"><input type="checkbox" id="dailyCheckinEnabled" ${appConfig.dailyCheckinEnabled ? 'checked' : ''}><span class="slider"></span></label>
+                </div>
+                <div id="daily-checkin-list" style="padding-top: 15px; border-top: 1px solid #eee; margin-top: 15px;">
+                    <div class="days-grid">
+                        ${(appConfig.dailyCheckinRewards || []).map((item, index) => `
+                            <div class="daily-checkin-item">
+                                <div class="form-group">
+                                    <label class="day-label">Day ${item.day}</label>
+                                    <input type="number" step="0.01" data-type="checkinReward" data-index="${index}" value="${item.reward}">
+                                </div>
+                                <button type="button" class="btn-remove" onclick="removeCheckinDay(${index})">&times;</button>
+                            </div>`).join('')}
+                    </div>
+                    <button type="button" class="btn-add" onclick="addCheckinDay()"><i class="fas fa-plus"></i> Add New Day</button>
+                </div>`;
+
+            const switchEl = document.getElementById('dailyCheckinEnabled');
+            const listEl = document.getElementById('daily-checkin-list');
+            listEl.style.display = switchEl.checked ? 'block' : 'none';
+            switchEl.addEventListener('change', () => { listEl.style.display = switchEl.checked ? 'block' : 'none'; });
+        }
+        window.addCheckinDay = () => { if (!appConfig.dailyCheckinRewards) appConfig.dailyCheckinRewards = []; const nextDay = appConfig.dailyCheckinRewards.length + 1; appConfig.dailyCheckinRewards.push({ day: nextDay, reward: 0 }); renderDailyCheckinSection(); };
+        window.removeCheckinDay = (index) => { if(confirm('Are you sure?')) { appConfig.dailyCheckinRewards.splice(index, 1); appConfig.dailyCheckinRewards.forEach((item, i) => item.day = i + 1); renderDailyCheckinSection(); }};
+        
+        function renderTasksSection() {
+            renderSection('tasks-section', appConfig.tasks || [], {
+                toggleLabel: 'Enable Tasks Feature',
+                enabledId: 'tasksEnabled',
+                enabledFlag: 'tasksEnabled',
+                listContainerId: 'tasks-list',
+                itemRenderer: (item, index) => `
+                    <div class="task-setting">
+                        <input type="text" data-type="taskTitle" data-index="${index}" value="${item.title}" placeholder="Task Title">
+                        <input type="text" data-type="taskLink" data-index="${index}" value="${item.link}" placeholder="Task Link">
+                        <input type="number" step="0.01" data-type="taskReward" data-index="${index}" value="${item.reward}" placeholder="Reward">
+                        <label class="switch"><input type="checkbox" data-type="taskItemEnabled" data-index="${index}" ${item.enabled ? 'checked' : ''}><span class="slider"></span></label>
+                        <button type="button" class="btn-remove" onclick="removeTask(${index})">&times;</button>
+                    </div>`,
+                addFunction: 'addTask()',
+                addButtonLabel: 'Add Task'
+            });
+        }
+        window.addTask = () => { if (!appConfig.tasks) appConfig.tasks = []; appConfig.tasks.push({ id: Date.now(), title: '', link: '', reward: 0, enabled: true }); renderTasksSection(); };
+        window.removeTask = (index) => { if(confirm('Are you sure?')) { appConfig.tasks.splice(index, 1); renderTasksSection(); }};
+        
+        function renderWithdrawalMethodsSection() {
+            renderSection('withdrawal-methods-section', appConfig.withdrawalMethods || [], {
+                toggleLabel: 'Enable Withdrawal Methods',
+                enabledId: 'withdrawalMethodsEnabled',
+                enabledFlag: 'withdrawalMethodsEnabled',
+                listContainerId: 'withdrawal-methods-list',
+                itemRenderer: (item, index) => `
+                    <div class="method-setting">
+                        <input type="text" data-type="methodName" data-index="${index}" value="${item.name}" placeholder="Method Name">
+                        <input type="text" data-type="methodBnName" data-index="${index}" value="${item.bn_name}" placeholder="Bangla Name">
+                        <input type="text" data-type="methodLogo" data-index="${index}" value="${item.logo}" placeholder="Logo URL">
+                        <label class="switch"><input type="checkbox" data-type="methodItemEnabled" data-index="${index}" ${item.enabled ? 'checked' : ''}><span class="slider"></span></label>
+                        <button type="button" class="btn-remove" onclick="removeMethod(${index})">&times;</button>
+                    </div>`,
+                addFunction: 'addMethod()',
+                addButtonLabel: 'Add Method'
+            });
+        }
+        window.addMethod = () => { if (!appConfig.withdrawalMethods) appConfig.withdrawalMethods = []; appConfig.withdrawalMethods.push({ name: '', bn_name: '', logo: '', enabled: true }); renderWithdrawalMethodsSection(); };
+        window.removeMethod = (index) => { if(confirm('Are you sure?')) { appConfig.withdrawalMethods.splice(index, 1); renderWithdrawalMethodsSection(); }};
+
+        // --- Save All Settings ---
+        async function saveAllSettings(e) {
+            e.preventDefault();
+            // সকল ইনপুট থেকে ডেটা নিয়ে appConfig অবজেক্ট আপডেট করা
+            appConfig.appVersion = document.getElementById('appVersion').value;
+            appConfig.announcement = document.getElementById('announcement').value;
+            appConfig.adsReward = parseFloat(document.getElementById('adsReward').value);
+            appConfig.adsLimit = parseInt(document.getElementById('adsLimit').value);
+            appConfig.refferBonus = parseInt(document.getElementById('refferBonus').value);
+            appConfig.refferJoinBonus = parseFloat(document.getElementById('refferJoinBonus').value);
+            appConfig.currency = document.getElementById('currency').value;
+            appConfig.minWithdraw = parseFloat(document.getElementById('minWithdraw').value);
+
+            appConfig.adNetworksEnabled = document.getElementById('adNetworksEnabled').checked;
+            appConfig.adNetworks.forEach((item, index) => {
+                item.name = document.querySelector(`[data-type="adNetworkName"][data-index="${index}"]`).value;
+                item.zoneId = document.querySelector(`[data-type="adNetworkZoneId"][data-index="${index}"]`).value;
+                item.enabled = document.querySelector(`[data-type="adNetworkItemEnabled"][data-index="${index}"]`).checked;
+            });
+
+            appConfig.dailyCheckinEnabled = document.getElementById('dailyCheckinEnabled').checked;
+            appConfig.dailyCheckinRewards.forEach((item, index) => {
+                item.reward = parseFloat(document.querySelector(`[data-type="checkinReward"][data-index="${index}"]`).value);
+            });
+
+            appConfig.tasksEnabled = document.getElementById('tasksEnabled').checked;
+            appConfig.tasks.forEach((item, index) => {
+                item.title = document.querySelector(`[data-type="taskTitle"][data-index="${index}"]`).value;
+                item.link = document.querySelector(`[data-type="taskLink"][data-index="${index}"]`).value;
+                item.reward = parseFloat(document.querySelector(`[data-type="taskReward"][data-index="${index}"]`).value);
+                item.enabled = document.querySelector(`[data-type="taskItemEnabled"][data-index="${index}"]`).checked;
+            });
+            
+            appConfig.withdrawalMethodsEnabled = document.getElementById('withdrawalMethodsEnabled').checked;
+            appConfig.withdrawalMethods.forEach((item, index) => {
+                item.name = document.querySelector(`[data-type="methodName"][data-index="${index}"]`).value;
+                item.bn_name = document.querySelector(`[data-type="methodBnName"][data-index="${index}"]`).value;
+                item.logo = document.querySelector(`[data-type="methodLogo"][data-index="${index}"]`).value;
+                item.enabled = document.querySelector(`[data-type="methodItemEnabled"][data-index="${index}"]`).checked;
+            });
+
+            await saveConfigToFirebase(); // Firebase-এ ডেটা সেভ করা
+        }
+
+        // --- Navigation & UI Helpers (Unchanged) ---
+        function toggleMenu() { sideNav.classList.toggle('open'); overlay.classList.toggle('active'); }
+        function handleNavClick(e) {
+            e.preventDefault();
+            navigateToPage(this.getAttribute('href').substring(1));
+            if (window.innerWidth <= 768) toggleMenu();
+        }
+        window.navigateToPage = function(targetId) {
+            pages.forEach(p => p.classList.remove('active'));
+            document.getElementById(targetId).classList.add('active');
+            navLinks.forEach(l => {
+                l.classList.toggle('active', l.getAttribute('href') === `#${targetId}`);
+            });
+        }
+        function updateDashboardData() {
+            const currency = appConfig.currency || 'BDT';
+            const pointsPerBdt = appConfig.pointsPerBdt || 100;
+            const pendingWithdrawals = Object.values(allWithdrawals).filter(w => w.status === 'Pending');
+            const approvedWithdrawals = Object.values(allWithdrawals).filter(w => w.status === 'Approved');
+            const totalApprovedAmount = approvedWithdrawals.reduce((sum, w) => sum + (w.amount || 0), 0);
+            
+            let totalEarningsPoints = 0;
+            let totalReferrals = 0;
+            Object.values(allUsers).forEach(user => {
+                totalEarningsPoints += user.totalEarnings || user.balance || 0;
+                totalReferrals += (user.referralsList || []).length;
+            });
+            const totalEarningsBdt = totalEarningsPoints / pointsPerBdt;
+
+            document.getElementById('db-total-users').textContent = Object.keys(allUsers).length;
+            document.getElementById('db-total-earnings').textContent = `${currency} ${totalEarningsBdt.toFixed(2)}`;
+            document.getElementById('db-total-referrals').textContent = totalReferrals;
+            document.getElementById('db-req-withdraw').textContent = pendingWithdrawals.length;
+            document.getElementById('db-approved-withdraw').textContent = `${currency} ${totalApprovedAmount.toFixed(2)}`;
+            if (appConfig.withdrawalMethods) {
+                document.getElementById('db-withdraw-methods').textContent = appConfig.withdrawalMethods.length;
+            }
+            
+            // Legacy/placeholder data
+            document.getElementById('db-ads-watched').textContent = '...';
+            document.getElementById('db-total-commission').textContent = '...';
+            document.getElementById('db-pending-withdraw').textContent = '...';
+        }
+
+        init(); // Start the app
     });
-}
-
-function renderAllSettings() {
-    document.getElementById('adsReward').value = appConfig.adsReward || 0;
-    document.getElementById('dailyAdsLimit').value = appConfig.dailyAdsLimit || 0;
-    document.getElementById('referralCommissionRate').value = appConfig.referralCommissionRate || 0;
-    document.getElementById('minWithdraw').value = appConfig.minWithdraw || 0;
-    document.getElementById('pointsPerBdt').value = appConfig.pointsPerBdt || 100;
-    document.getElementById('currency').value = appConfig.currency || 'BDT';
-    renderTasks();
-}
-
-function renderTasks() {
-    const container = document.getElementById('tasks-section');
-    let tasksHtml = '';
-    (appConfig.tasks || []).forEach((task, index) => {
-        tasksHtml += `
-            <div class="task-setting" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
-                <input type="hidden" data-type="taskId" value="${task.id || ''}">
-                <input type="text" data-type="taskName" placeholder="Task Name" value="${task.name || ''}">
-                <input type="text" data-type="taskDesc" placeholder="Description" value="${task.description || ''}">
-                <input type="text" data-type="taskLink" placeholder="Link (e.g., https://t.me/..)" value="${task.link || ''}">
-                <input type="number" data-type="taskReward" placeholder="Reward (Points)" value="${task.reward || 0}">
-                <button type="button" class="btn-remove" style="padding: 8px 12px; background: var(--red); color: white; border: none; border-radius: 5px; cursor: pointer;" onclick="this.parentElement.remove()">Remove</button>
-            </div>`;
-    });
-    // নতুন টাস্ক যোগ করার বাটন ছাড়া বাকি অংশটুকু innerHTML দিয়ে সেট করা হচ্ছে
-    container.innerHTML = tasksHtml + container.querySelector('.btn-add').outerHTML;
-}
-
-window.addTask = () => {
-    const container = document.getElementById('tasks-section');
-    const newTaskHtml = `
-        <div class="task-setting" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
-            <input type="hidden" data-type="taskId" value="">
-            <input type="text" data-type="taskName" placeholder="Task Name">
-            <input type="text" data-type="taskDesc" placeholder="Description">
-            <input type="text" data-type="taskLink" placeholder="Link (e.g., https://t.me/..)">
-            <input type="number" data-type="taskReward" placeholder="Reward (Points)">
-            <button type="button" class="btn-remove" style="padding: 8px 12px; background: var(--red); color: white; border: none; border-radius: 5px; cursor: pointer;" onclick="this.parentElement.remove()">Remove</button>
-        </div>`;
-    container.insertAdjacentHTML('afterbegin', newTaskHtml);
-};
 </script>
+
 </body>
-</html>
+</html>```
