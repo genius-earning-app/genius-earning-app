@@ -290,35 +290,13 @@
                                     <label for="announcement">Announcement / Notice</label>
                                     <textarea id="announcement" placeholder="অ্যাপের ব্যবহারকারীদের জন্য ঘোষণা..."></textarea>
                                 </div>
-                                <div class="form-group">
-                                    <label for="botUsername">Bot Username (without @)</label>
-                                    <input type="text" id="botUsername" placeholder="e.g., Genius_Ads_Earning_Bot">
-                                </div>
                             </div>
                         </div>
-                        
-                        <!-- ********** নতুন সেকশন শুরু (Welcome Message) ********** -->
-                        <div class="section-card">
-                            <div class="section-header"><i class="fas fa-hand-sparkles"></i>Welcome Message Settings</div>
-                            <div class="section-body">
-                                <div class="form-group">
-                                    <label for="welcomeTitle">Welcome Card Title</label>
-                                    <input type="text" id="welcomeTitle" placeholder="e.g., Welcome, {USER}!">
-                                    <small>ব্যবহারকারীর নাম দেখাতে {USER} ব্যবহার করুন।</small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="welcomeSubtitle">Welcome Card Subtitle</label>
-                                    <input type="text" id="welcomeSubtitle" placeholder="e.g., Ready to boost your earnings?">
-                                </div>
-                            </div>
-                        </div>
-                        <!-- ********** নতুন সেকশন শেষ ********** -->
 
                         <!-- General Settings -->
                         <div class="section-card">
                             <div class="section-header"><i class="fas fa-cogs"></i>Manage Settings</div>
                             <div class="section-body">
-                                <div class="form-group"><label for="pointsPerBdt">Points Per BDT</label><input type="number" id="pointsPerBdt" placeholder="e.g., 100"></div>
                                 <div class="form-group"><label for="adsReward">Ads Reward</label><input type="number" step="0.01" id="adsReward"></div>
                                 <div class="form-group"><label for="adsLimit">Daily Ads Limit</label><input type="number" id="adsLimit"></div>
                                 <div class="form-group"><label for="refferBonus">Referral Commission in %</label><input type="number" id="refferBonus"></div>
@@ -327,7 +305,7 @@
                             </div>
                         </div>
 
-                        <!-- Advanced Control -->
+                        <!-- ********** নতুন সেকশন শুরু ********** -->
                         <div class="section-card">
                             <div class="section-header"><i class="fas fa-tools"></i>Advanced Control</div>
                             <div class="section-body">
@@ -353,6 +331,7 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- ********** নতুন সেকশন শেষ ********** -->
 
                         <!-- Ad Networks Settings -->
                         <div class="section-card">
@@ -380,12 +359,6 @@
                                     <label for="minWithdraw">Minimum Withdrawal Limit</label>
                                     <input type="number" id="minWithdraw">
                                 </div>
-                                <!-- ********** নতুন ইনপুট যুক্ত করা হলো ********** -->
-                                <div class="form-group">
-                                    <label for="maxWithdraw">Maximum Withdrawal Limit</label>
-                                    <input type="number" id="maxWithdraw">
-                                </div>
-                                <!-- ********** শেষ ********** -->
                                 <hr>
                                 <div id="withdrawal-methods-section"></div>
                             </div>
@@ -417,7 +390,7 @@
         </div>
     </div>
     
-    <!-- User History Modal -->
+    <!-- ********** নতুন মডাল শুরু ********** -->
     <div class="modal-overlay" id="user-history-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -429,6 +402,7 @@
             </div>
         </div>
     </div>
+    <!-- ********** নতুন মডাল শেষ ********** -->
 
 
 <!-- Firebase SDKs -->
@@ -480,11 +454,6 @@
             appVersion: '1.0.0', announcement: '',
             
             // নতুন ডিফল্ট ভ্যালু যুক্ত করা হলো
-            pointsPerBdt: 100,
-            botUsername: 'Genius_Ads_Earning_Bot',
-            welcomeTitle: 'Welcome, {USER}!',
-            welcomeSubtitle: 'Ready to boost your earnings?',
-            maxWithdraw: 5000,
             adWatchTimerSeconds: 30,
             hourlyAdsLimit: 25,
             minReferralsForWithdrawal: 3,
@@ -577,11 +546,6 @@
             document.getElementById('minWithdraw').value = appConfig.minWithdraw;
             
             // নতুন সেটিংস রেন্ডার করা
-            document.getElementById('pointsPerBdt').value = appConfig.pointsPerBdt;
-            document.getElementById('botUsername').value = appConfig.botUsername;
-            document.getElementById('welcomeTitle').value = appConfig.welcomeTitle;
-            document.getElementById('welcomeSubtitle').value = appConfig.welcomeSubtitle;
-            document.getElementById('maxWithdraw').value = appConfig.maxWithdraw;
             document.getElementById('adWatchTimerSeconds').value = appConfig.adWatchTimerSeconds;
             document.getElementById('hourlyAdsLimit').value = appConfig.hourlyAdsLimit;
             document.getElementById('minReferralsForWithdrawal').value = appConfig.minReferralsForWithdrawal;
@@ -712,6 +676,7 @@
             currentEditingUserId = null;
         };
         
+        // ********** নতুন ফাংশন শুরু **********
         window.openUserHistoryModal = (userId) => {
             const user = allUsers[userId];
             if (!user) return;
@@ -757,6 +722,8 @@
         window.closeUserHistoryModal = () => {
             document.getElementById('user-history-modal').classList.remove('active');
         };
+        // ********** নতুন ফাংশন শেষ **********
+
 
         async function saveUserChanges() {
             if (!currentEditingUserId) return;
@@ -923,11 +890,6 @@
             appConfig.minWithdraw = parseFloat(document.getElementById('minWithdraw').value);
 
             // নতুন সেটিংস সেভ করা
-            appConfig.pointsPerBdt = parseInt(document.getElementById('pointsPerBdt').value);
-            appConfig.botUsername = document.getElementById('botUsername').value;
-            appConfig.welcomeTitle = document.getElementById('welcomeTitle').value;
-            appConfig.welcomeSubtitle = document.getElementById('welcomeSubtitle').value;
-            appConfig.maxWithdraw = parseFloat(document.getElementById('maxWithdraw').value);
             appConfig.adWatchTimerSeconds = parseInt(document.getElementById('adWatchTimerSeconds').value);
             appConfig.hourlyAdsLimit = parseInt(document.getElementById('hourlyAdsLimit').value);
             appConfig.minReferralsForWithdrawal = parseInt(document.getElementById('minReferralsForWithdrawal').value);
@@ -949,7 +911,7 @@
             appConfig.tasks.forEach((item, index) => {
                 item.title = document.querySelector(`[data-type="taskTitle"][data-index="${index}"]`).value;
                 item.link = document.querySelector(`[data-type="taskLink"][data-index="${index}"]`).value;
-                item.reward = parseFloat(document.querySelector(`[data-type="taskReward"][data-index="${index}"]`).value;
+                item.reward = parseFloat(document.querySelector(`[data-type="taskReward"][data-index="${index}"]`).value);
                 item.enabled = document.querySelector(`[data-type="taskItemEnabled"][data-index="${index}"]`).checked;
             });
             
