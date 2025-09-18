@@ -6,6 +6,8 @@
     <title>Admin Dashboard (Firebase)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- নতুন যুক্ত: Chart.js লাইব্রেরি -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
@@ -92,13 +94,15 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
         .overlay.active { opacity: 1; visibility: visible; }
         
-        .ad-network-setting, .task-setting, .method-setting {
+        .ad-network-setting, .task-setting, .method-setting, .tier-setting { /* tier-setting যুক্ত করা হলো */
             display: grid; gap: 15px; align-items: center;
             margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);
         }
         .ad-network-setting { grid-template-columns: 2fr 2fr auto auto; }
         .task-setting { grid-template-columns: 2fr 2fr 1fr auto auto; }
         .method-setting { grid-template-columns: 1fr 1fr 1fr auto auto; }
+        /* নতুন tier-setting এর জন্য স্টাইল */
+        .tier-setting { grid-template-columns: 2fr 2fr 1fr auto auto; }
 
         .btn-remove { padding: 8px 12px; background: var(--red); color: white; border: none; border-radius: 5px; cursor: pointer; }
         .btn-add { padding: 10px; background: var(--blue); color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;}
@@ -118,8 +122,26 @@
         .daily-checkin-item { display: flex; align-items: center; gap: 10px; border: 1px solid var(--border-color); border-radius: 5px; padding: 10px; }
         .daily-checkin-item .form-group { flex-grow: 1; margin: 0; }
         .daily-checkin-item label.day-label { font-weight: 600; margin-bottom: 8px; display: block; text-align: center;}
+        
+        /* --- অ্যানালিটিক্স চার্টের জন্য নতুন স্টাইল শুরু --- */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 25px;
+        }
+        @media (min-width: 992px) {
+            .analytics-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        /* --- অ্যানালিটিক্স চার্টের জন্য নতুন স্টাইল শেষ --- */
 
-        /* --- নতুন এবং পরিবর্তিত স্টাইল --- */
         .table-container { overflow-x: auto; }
         .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .data-table th, .data-table td { padding: 12px 15px; border: 1px solid var(--border-color); text-align: left; }
@@ -168,55 +190,33 @@
         .icon.earning { background-color: var(--green); }
         .icon.withdrawal { background-color: var(--red); }
         .icon.referral, .icon.login, .icon.task { background-color: var(--blue); }
-        .icon.manual { background-color: var(--purple); } /* ম্যানুয়াল ট্রানজেকশনের জন্য নতুন আইকন স্টাইল */
+        .icon.manual { background-color: var(--purple); }
 
-
-        /* --- নতুন মোবাইল-ফ্রেন্ডলি স্টাইল শুরু --- */
         @media (max-width: 768px) {
-            .ad-network-setting, .task-setting, .method-setting { grid-template-columns: 1fr; gap: 10px; }
-            .method-setting .btn-remove, .task-setting .btn-remove, .ad-network-setting .btn-remove { margin-top: 5px; width: 100%; }
+            .ad-network-setting, .task-setting, .method-setting, .tier-setting { grid-template-columns: 1fr; gap: 10px; }
+            .method-setting .btn-remove, .task-setting .btn-remove, .ad-network-setting .btn-remove, .tier-setting .btn-remove { margin-top: 5px; width: 100%; }
 
-            /* টেবিলকে মোবাইল-ফ্রেন্ডলি করার জন্য CSS */
-            .data-table thead {
-                display: none;
-            }
+            .data-table thead { display: none; }
             .data-table, .data-table tbody, .data-table tr, .data-table td {
-                display: block;
-                width: 100%;
+                display: block; width: 100%;
             }
             .data-table tr {
-                margin-bottom: 15px;
-                border: 1px solid var(--border-color);
-                border-radius: 5px;
-                overflow: hidden;
+                margin-bottom: 15px; border: 1px solid var(--border-color);
+                border-radius: 5px; overflow: hidden;
             }
             .data-table td {
-                text-align: right;
-                padding-left: 50%;
-                position: relative;
-                border: none;
-                border-bottom: 1px solid #eee;
+                text-align: right; padding-left: 50%;
+                position: relative; border: none; border-bottom: 1px solid #eee;
             }
-            .data-table td:last-child {
-                border-bottom: none;
-            }
+            .data-table td:last-child { border-bottom: none; }
             .data-table td::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 10px;
-                width: 45%;
-                padding-right: 10px;
-                white-space: nowrap;
-                text-align: left;
-                font-weight: bold;
+                content: attr(data-label); position: absolute;
+                left: 10px; width: 45%; padding-right: 10px;
+                white-space: nowrap; text-align: left; font-weight: bold;
                 color: var(--primary-bg);
             }
-            .data-table .action-btn {
-                margin-bottom: 5px;
-            }
+            .data-table .action-btn { margin-bottom: 5px; }
         }
-        /* --- নতুন মোবাইল-ফ্রেন্ডলি স্টাইল শেষ --- */
-
     </style>
 </head>
 <body>
@@ -254,6 +254,26 @@
                         <div class="dashboard-card"><div class="icon methods"><i class="fas fa-credit-card"></i></div><div class="card-content"><h3 id="db-withdraw-methods">0</h3><p>Withdrawal Methods</p></div></div>
                         <div class="dashboard-card"><div class="icon settings"><i class="fas fa-cog"></i></div><div class="card-content" style="cursor: pointer;" onclick="navigateToPage('settings')"><h3>Settings</h3><p>Manage App Settings</p></div></div>
                     </div>
+                    <!-- নতুন যুক্ত: অ্যানালিটিক্স সেকশন শুরু -->
+                    <div class="analytics-grid">
+                        <div class="section-card">
+                            <div class="section-header"><i class="fas fa-chart-line"></i>দৈনিক ব্যবহারকারী বৃদ্ধি</div>
+                            <div class="section-body">
+                                <div class="chart-container">
+                                    <canvas id="user-growth-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-card">
+                            <div class="section-header"><i class="fas fa-chart-bar"></i>দৈনিক মোট আয় (পয়েন্ট)</div>
+                            <div class="section-body">
+                                <div class="chart-container">
+                                    <canvas id="daily-earnings-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- নতুন যুক্ত: অ্যানালিটিক্স সেকশন শেষ -->
                 </div>
 
                 <!-- User Management Page -->
@@ -328,18 +348,29 @@
                                     <label for="appVersion">App Version</label>
                                     <input type="text" id="appVersion" placeholder="e.g., 1.0.0">
                                 </div>
-                                <!-- নতুন ফিল্ড শুরু -->
                                 <div class="form-group">
                                     <label for="botUsername">Telegram Bot Username (without @)</label>
                                     <input type="text" id="botUsername" placeholder="e.g., YourBotUsername">
                                 </div>
-                                <!-- নতুন ফিল্ড শেষ -->
                                 <div class="form-group">
                                     <label for="announcement">Announcement / Notice</label>
                                     <textarea id="announcement" placeholder="অ্যাপের ব্যবহারকারীদের জন্য ঘোষণা..."></textarea>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- নতুন যুক্ত: গ্লোবাল নোটিফিকেশন সেকশন শুরু -->
+                        <div class="section-card">
+                            <div class="section-header"><i class="fas fa-bell"></i>সকল ব্যবহারকারীকে নোটিফিকেশন পাঠান</div>
+                            <div class="section-body">
+                                <div class="form-group">
+                                    <label for="global-notification-message">নোটিফিকেশন বার্তা</label>
+                                    <textarea id="global-notification-message" placeholder="এই বার্তাটি সকল সক্রিয় ব্যবহারকারীর কাছে অ্যাপের ভেতর পপ-আপ হিসেবে দেখানো হবে..."></textarea>
+                                </div>
+                                <button type="button" class="update-btn" style="background-color: var(--blue);" id="send-global-notification-btn">Send Global Notification</button>
+                            </div>
+                        </div>
+                        <!-- নতুন যুক্ত: গ্লোবাল নোটিফিকেশন সেকশন শেষ -->
 
                         <!-- General Settings -->
                         <div class="section-card">
@@ -350,12 +381,10 @@
                                 <div class="form-group"><label for="refferBonus">Referral Commission in %</label><input type="number" id="refferBonus"></div>
                                 <div class="form-group"><label for="refferJoinBonus">Referral Join Bonus</label><input type="number" step="0.01" id="refferJoinBonus"></div>
                                 <div class="form-group"><label for="currency">Currency Symbol</label><input type="text" id="currency"></div>
-                                <!-- নতুন ফিল্ড শুরু -->
                                 <div class="form-group">
                                     <label for="pointsPerCurrency">Points per <span id="currency-label">Currency</span></label>
                                     <input type="number" id="pointsPerCurrency" placeholder="e.g., 100">
                                 </div>
-                                <!-- নতুন ফিল্ড শেষ -->
                             </div>
                         </div>
 
@@ -403,6 +432,13 @@
                             <div class="section-body" id="tasks-section"></div>
                         </div>
 
+                        <!-- নতুন যুক্ত: ব্যবহারকারীর স্তর সেকশন শুরু -->
+                        <div class="section-card">
+                            <div class="section-header"><i class="fas fa-layer-group"></i>ব্যবহারকারীর স্তর (User Tiers)</div>
+                            <div class="section-body" id="user-tiers-section"></div>
+                        </div>
+                        <!-- নতুন যুক্ত: ব্যবহারকারীর স্তর সেকশন শেষ -->
+
                         <!-- Withdrawal Settings -->
                         <div class="section-card">
                             <div class="section-header"><i class="fas fa-wallet"></i>Withdrawal Settings</div>
@@ -434,7 +470,6 @@
                 <div class="user-details" id="user-details-content"></div>
                 <hr>
                 
-                <!-- নতুন মডাল কনটেন্ট শুরু -->
                 <h4>Manual Transaction</h4>
                 <div class="form-group">
                     <label for="points-to-add">Add/Subtract Points (e.g., 100 or -50)</label>
@@ -453,7 +488,6 @@
                     <textarea id="user-notification-message" placeholder="This message will be shown to the user in the app..."></textarea>
                 </div>
                 <button class="update-btn" style="background-color: var(--blue);" onclick="window.sendUserNotification()">Send Notification</button>
-                <!-- নতুন মডাল কনটেন্ট শেষ -->
             </div>
         </div>
     </div>
@@ -493,6 +527,8 @@
     const configRef = ref(database, 'app/config'); 
     const usersRef = ref(database, 'app/users');
     const withdrawRequestsRef = ref(database, 'app/withdraw_requests');
+    // নতুন যুক্ত: গ্লোবাল নোটিফিকেশন ref
+    const globalNotificationRef = ref(database, 'app/global_notification');
 
     document.addEventListener('DOMContentLoaded', function () {
         const menuToggle = document.getElementById('menuToggle');
@@ -507,20 +543,21 @@
         let allWithdrawals = {};
         let currentWithdrawFilter = 'Pending';
         let currentEditingUserId = null;
+        
+        // নতুন যুক্ত: চার্টের জন্য ভ্যারিয়েবল
+        let userGrowthChart = null;
+        let dailyEarningsChart = null;
 
         const DEFAULT_CONFIG = {
             adsReward: 1.0, adsLimit: 100, refferBonus: 10,
             refferJoinBonus: 5.0, currency: 'BDT', minWithdraw: 500,
             appVersion: '1.0.0', announcement: '',
-            
-            // নতুন ডিফল্ট ভ্যালু যুক্ত করা হলো
             botUsername: 'YourBotUsername',
             pointsPerCurrency: 100,
             adWatchTimerSeconds: 30,
             hourlyAdsLimit: 25,
             minReferralsForWithdrawal: 3,
             maintenanceMode: false,
-            
             adNetworksEnabled: true,
             adNetworks: [ { name: 'Monetag Ads', zoneId: '9704633', enabled: true } ],
             dailyCheckinEnabled: true,
@@ -528,7 +565,14 @@
             tasksEnabled: true,
             tasks: [ { id: Date.now() + 1, title: 'Join Telegram', link: 'https://t.me/your_channel', reward: 5, enabled: true } ],
             withdrawalMethodsEnabled: true,
-            withdrawalMethods: [ { name: 'bKash', bn_name: 'বিকাশ', logo: 'bkash.png', enabled: true } ]
+            withdrawalMethods: [ { name: 'bKash', bn_name: 'বিকাশ', logo: 'bkash.png', enabled: true } ],
+            // নতুন যুক্ত: ব্যবহারকারীর স্তর ডিফল্ট কনফিগ
+            userTiersEnabled: false,
+            userTiers: [
+                { name: 'Bronze', requiredPoints: 0, bonusPercent: 0 },
+                { name: 'Silver', requiredPoints: 50000, bonusPercent: 2 },
+                { name: 'Gold', requiredPoints: 200000, bonusPercent: 5 }
+            ]
         };
 
         function init() {
@@ -549,6 +593,7 @@
                 allUsers = snapshot.val() || {};
                 renderUsers();
                 updateDashboardData();
+                processAnalyticsData(); // নতুন: ব্যবহারকারীর ডেটা লোড হলে চার্ট আপডেট হবে
             }, (err) => console.error("Users read error:", err));
             
             onValue(withdrawRequestsRef, (snapshot) => {
@@ -576,8 +621,85 @@
             document.getElementById('currency').addEventListener('input', (e) => {
                 document.getElementById('currency-label').textContent = e.target.value || 'Currency';
             });
+            
+            // নতুন যুক্ত: গ্লোবাল নোটিফিকেশন বাটনের জন্য ইভেন্ট লিসেনার
+            document.getElementById('send-global-notification-btn').addEventListener('click', sendGlobalNotification);
+            
+            initCharts(); // নতুন: চার্ট ইনিশিয়ালাইজ করা
         }
         
+        // --- নতুন ফাংশন: অ্যানালিটিক্স চার্ট শুরু ---
+        function initCharts() {
+            const userCtx = document.getElementById('user-growth-chart').getContext('2d');
+            userGrowthChart = new Chart(userCtx, {
+                type: 'line',
+                data: { labels: [], datasets: [{ label: 'নতুন ব্যবহারকারী', data: [], backgroundColor: 'rgba(52, 152, 219, 0.2)', borderColor: 'rgba(52, 152, 219, 1)', borderWidth: 2, tension: 0.3 }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const earningsCtx = document.getElementById('daily-earnings-chart').getContext('2d');
+            dailyEarningsChart = new Chart(earningsCtx, {
+                type: 'bar',
+                data: { labels: [], datasets: [{ label: 'দৈনিক আয় (পয়েন্ট)', data: [], backgroundColor: 'rgba(46, 204, 113, 0.7)', borderColor: 'rgba(46, 204, 113, 1)', borderWidth: 1 }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function processAnalyticsData() {
+            const userGrowthData = {};
+            const dailyEarningsData = {};
+            
+            Object.values(allUsers).forEach(user => {
+                if (user.joinedAt) {
+                    const joinDate = new Date(user.joinedAt).toLocaleDateString('en-CA'); // YYYY-MM-DD format
+                    userGrowthData[joinDate] = (userGrowthData[joinDate] || 0) + 1;
+                }
+                if (user.transactionHistory) {
+                     Object.values(user.transactionHistory).forEach(tx => {
+                        if (tx.amount > 0 && ['earning', 'login', 'task', 'referral'].includes(tx.type)) {
+                            const txDate = new Date(tx.date).toLocaleDateString('en-CA');
+                            dailyEarningsData[txDate] = (dailyEarningsData[txDate] || 0) + tx.amount;
+                        }
+                     });
+                }
+            });
+
+            const sortedUserDates = Object.keys(userGrowthData).sort();
+            const sortedEarningDates = Object.keys(dailyEarningsData).sort();
+
+            userGrowthChart.data.labels = sortedUserDates;
+            userGrowthChart.data.datasets[0].data = sortedUserDates.map(date => userGrowthData[date]);
+            userGrowthChart.update();
+
+            dailyEarningsChart.data.labels = sortedEarningDates;
+            dailyEarningsChart.data.datasets[0].data = sortedEarningDates.map(date => dailyEarningsData[date]);
+            dailyEarningsChart.update();
+        }
+        // --- নতুন ফাংশন: অ্যানালিটিক্স চার্ট শেষ ---
+
+        // --- নতুন ফাংশন: গ্লোবাল নোটিফিকেশন শুরু ---
+        async function sendGlobalNotification() {
+            const message = document.getElementById('global-notification-message').value.trim();
+            if (!message) {
+                return alert("নোটিফিকেশন বার্তা খালি রাখা যাবে না।");
+            }
+
+            if (!confirm("আপনি কি নিশ্চিত যে এই বার্তাটি সকল ব্যবহারকারীর কাছে পাঠাতে চান?")) return;
+
+            try {
+                await set(globalNotificationRef, {
+                    message: message,
+                    timestamp: new Date().toISOString()
+                });
+                alert("গ্লোবাল নোটিফিকেশন সফলভাবে পাঠানো হয়েছে!");
+                document.getElementById('global-notification-message').value = '';
+            } catch (error) {
+                console.error("Error sending global notification:", error);
+                alert("নোটিফিকেশন পাঠাতে ব্যর্থ হয়েছে।");
+            }
+        }
+        // --- নতুন ফাংশন: গ্লোবাল নোটিফিকেশন শেষ ---
+
         async function saveConfigToFirebase() {
             try {
                 await set(configRef, appConfig);
@@ -604,7 +726,6 @@
             document.getElementById('minReferralsForWithdrawal').value = appConfig.minReferralsForWithdrawal;
             document.getElementById('maintenanceMode').checked = appConfig.maintenanceMode;
 
-            // নতুন সেটিংস রেন্ডার করা
             document.getElementById('botUsername').value = appConfig.botUsername || '';
             document.getElementById('pointsPerCurrency').value = appConfig.pointsPerCurrency || 100;
             document.getElementById('currency-label').textContent = appConfig.currency || 'Currency';
@@ -612,6 +733,7 @@
             renderAdNetworksSection();
             renderDailyCheckinSection();
             renderTasksSection();
+            renderUserTiersSection(); // নতুন: ব্যবহারকারীর স্তর সেকশন রেন্ডার করা
             renderWithdrawalMethodsSection();
         }
 
@@ -719,11 +841,20 @@
             const modal = document.getElementById('user-edit-modal');
             document.getElementById('modal-user-name').textContent = `Edit User: ${user.profile?.firstName || userId}`;
             const detailsContent = document.getElementById('user-details-content');
+            
+            // নতুন যুক্ত: লগইন ইতিহাস দেখানো
+            const lastLogin = user.profile?.lastLogin;
+            const lastLoginTime = lastLogin?.timestamp ? new Date(lastLogin.timestamp).toLocaleString() : 'N/A';
+            const lastLoginIP = lastLogin?.ip || 'N/A';
+            
             detailsContent.innerHTML = `
                 <p><strong>User ID:</strong> ${userId}</p>
                 <p><strong>Name:</strong> ${user.profile?.firstName || ''} ${user.profile?.lastName || ''}</p>
                 <p><strong>Username:</strong> @${user.profile?.username || 'N/A'}</p>
                 <p><strong>Current Balance:</strong> ${user.balance || 0} points</p>
+                <hr>
+                <p><strong>Last Login Time:</strong> ${lastLoginTime}</p>
+                <p><strong>Last Login IP:</strong> ${lastLoginIP} <small>(Client-reported, may not be accurate)</small></p>
             `;
             document.getElementById('points-to-add').value = '';
             document.getElementById('transaction-reason').value = '';
@@ -805,7 +936,6 @@
                     const updates = {};
                     updates[`balance`] = newBalance;
 
-                    // Create transaction history entry
                     const historyRef = ref(database, `app/users/${currentEditingUserId}/transactionHistory`);
                     const newHistoryRef = push(historyRef);
                     updates[`transactionHistory/${newHistoryRef.key}`] = {
@@ -816,7 +946,6 @@
                     };
                     
                     await update(userRef, updates);
-
                     alert(`User balance updated to ${newBalance} points. Transaction added to history.`);
                     closeUserEditModal();
                 }
@@ -826,7 +955,6 @@
             }
         }
 
-        // নতুন ফাংশন: ব্যবহারকারীকে নোটিফিকেশন পাঠানো
         window.sendUserNotification = async () => {
             if (!currentEditingUserId) return;
             const message = document.getElementById('user-notification-message').value.trim();
@@ -842,10 +970,8 @@
                     date: new Date().toISOString(),
                     read: false
                 });
-
                 alert("Notification sent successfully!");
                 document.getElementById('user-notification-message').value = '';
-
             } catch(error) {
                 console.error("Error sending notification:", error);
                 alert("Failed to send notification. Check console for errors.");
@@ -959,6 +1085,29 @@
         window.addTask = () => { if (!appConfig.tasks) appConfig.tasks = []; appConfig.tasks.push({ id: Date.now(), title: '', link: '', reward: 0, enabled: true }); renderTasksSection(); };
         window.removeTask = (index) => { if(confirm('Are you sure?')) { appConfig.tasks.splice(index, 1); renderTasksSection(); }};
         
+        // --- নতুন ফাংশন: ব্যবহারকারীর স্তর সেকশন রেন্ডার করা ---
+        function renderUserTiersSection() {
+            renderSection('user-tiers-section', appConfig.userTiers || [], {
+                toggleLabel: 'Enable User Tiers Feature',
+                enabledId: 'userTiersEnabled',
+                enabledFlag: 'userTiersEnabled',
+                listContainerId: 'user-tiers-list',
+                itemRenderer: (item, index) => `
+                    <div class="tier-setting">
+                        <input type="text" data-type="tierName" data-index="${index}" value="${item.name}" placeholder="Tier Name (e.g., Silver)">
+                        <input type="number" data-type="tierRequiredPoints" data-index="${index}" value="${item.requiredPoints}" placeholder="Required Points">
+                        <input type="number" data-type="tierBonusPercent" data-index="${index}" value="${item.bonusPercent}" placeholder="Bonus %">
+                        <label class="switch"><input type="checkbox" data-type="tierItemEnabled" data-index="${index}" checked disabled><span class="slider"></span></label>
+                        <button type="button" class="btn-remove" onclick="removeUserTier(${index})">&times;</button>
+                    </div>`,
+                addFunction: 'window.addUserTier()',
+                addButtonLabel: 'Add Tier'
+            });
+        }
+        window.addUserTier = () => { if (!appConfig.userTiers) appConfig.userTiers = []; appConfig.userTiers.push({ name: '', requiredPoints: 0, bonusPercent: 0 }); renderUserTiersSection(); };
+        window.removeUserTier = (index) => { if(confirm('Are you sure?')) { appConfig.userTiers.splice(index, 1); renderUserTiersSection(); }};
+        // --- ব্যবহারকারীর স্তর সেকশন শেষ ---
+
         function renderWithdrawalMethodsSection() {
             renderSection('withdrawal-methods-section', appConfig.withdrawalMethods || [], {
                 toggleLabel: 'Enable Withdrawal Methods',
@@ -990,8 +1139,6 @@
             appConfig.refferJoinBonus = parseFloat(document.getElementById('refferJoinBonus').value);
             appConfig.currency = document.getElementById('currency').value;
             appConfig.minWithdraw = parseFloat(document.getElementById('minWithdraw').value);
-
-            // নতুন সেটিংস সেভ করা
             appConfig.botUsername = document.getElementById('botUsername').value;
             appConfig.pointsPerCurrency = parseInt(document.getElementById('pointsPerCurrency').value);
             appConfig.adWatchTimerSeconds = parseInt(document.getElementById('adWatchTimerSeconds').value);
@@ -1022,6 +1169,20 @@
                 item.enabled = document.querySelector(`[data-type="taskItemEnabled"][data-index="${index}"]`).checked;
             });
             
+            // নতুন যুক্ত: ব্যবহারকারীর স্তর সেটিংস সেভ করা
+            appConfig.userTiersEnabled = document.getElementById('userTiersEnabled').checked;
+            appConfig.userTiers = appConfig.userTiers || [];
+            const tempTiers = [];
+            document.querySelectorAll('.tier-setting').forEach((el, index) => {
+                const tier = {
+                    name: el.querySelector(`[data-type="tierName"]`).value,
+                    requiredPoints: parseInt(el.querySelector(`[data-type="tierRequiredPoints"]`).value),
+                    bonusPercent: parseInt(el.querySelector(`[data-type="tierBonusPercent"]`).value)
+                };
+                tempTiers.push(tier);
+            });
+            appConfig.userTiers = tempTiers.sort((a,b) => a.requiredPoints - b.requiredPoints); // পয়েন্ট অনুযায়ী সাজানো
+
             appConfig.withdrawalMethodsEnabled = document.getElementById('withdrawalMethodsEnabled').checked;
             appConfig.withdrawalMethods = appConfig.withdrawalMethods || [];
             appConfig.withdrawalMethods.forEach((item, index) => {
