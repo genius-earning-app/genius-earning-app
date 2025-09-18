@@ -129,7 +129,7 @@
         .btn-approve { background-color: var(--green); }
         .btn-reject { background-color: var(--red); }
         .btn-view { background-color: var(--blue); }
-        .btn-history { background-color: var(--teal); } /* নতুন বাটন স্টাইল */
+        .btn-history { background-color: var(--teal); }
         .btn-block { background-color: var(--orange); }
         .btn-unblock { background-color: #7f8c8d; }
         
@@ -155,7 +155,6 @@
         .user-details p { margin: 0 0 10px; }
         .user-details strong { color: var(--primary-bg); margin-right: 8px;}
         
-        /* নতুন মডাল স্টাইল */
         .history-list { list-style: none; padding: 0; }
         .history-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
         .history-item:last-child { border-bottom: none; }
@@ -169,12 +168,55 @@
         .icon.earning { background-color: var(--green); }
         .icon.withdrawal { background-color: var(--red); }
         .icon.referral, .icon.login, .icon.task { background-color: var(--blue); }
+        .icon.manual { background-color: var(--purple); } /* ম্যানুয়াল ট্রানজেকশনের জন্য নতুন আইকন স্টাইল */
 
 
+        /* --- নতুন মোবাইল-ফ্রেন্ডলি স্টাইল শুরু --- */
         @media (max-width: 768px) {
             .ad-network-setting, .task-setting, .method-setting { grid-template-columns: 1fr; gap: 10px; }
             .method-setting .btn-remove, .task-setting .btn-remove, .ad-network-setting .btn-remove { margin-top: 5px; width: 100%; }
+
+            /* টেবিলকে মোবাইল-ফ্রেন্ডলি করার জন্য CSS */
+            .data-table thead {
+                display: none;
+            }
+            .data-table, .data-table tbody, .data-table tr, .data-table td {
+                display: block;
+                width: 100%;
+            }
+            .data-table tr {
+                margin-bottom: 15px;
+                border: 1px solid var(--border-color);
+                border-radius: 5px;
+                overflow: hidden;
+            }
+            .data-table td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+                border: none;
+                border-bottom: 1px solid #eee;
+            }
+            .data-table td:last-child {
+                border-bottom: none;
+            }
+            .data-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                color: var(--primary-bg);
+            }
+            .data-table .action-btn {
+                margin-bottom: 5px;
+            }
         }
+        /* --- নতুন মোবাইল-ফ্রেন্ডলি স্টাইল শেষ --- */
+
     </style>
 </head>
 <body>
@@ -286,6 +328,12 @@
                                     <label for="appVersion">App Version</label>
                                     <input type="text" id="appVersion" placeholder="e.g., 1.0.0">
                                 </div>
+                                <!-- নতুন ফিল্ড শুরু -->
+                                <div class="form-group">
+                                    <label for="botUsername">Telegram Bot Username (without @)</label>
+                                    <input type="text" id="botUsername" placeholder="e.g., YourBotUsername">
+                                </div>
+                                <!-- নতুন ফিল্ড শেষ -->
                                 <div class="form-group">
                                     <label for="announcement">Announcement / Notice</label>
                                     <textarea id="announcement" placeholder="অ্যাপের ব্যবহারকারীদের জন্য ঘোষণা..."></textarea>
@@ -302,10 +350,15 @@
                                 <div class="form-group"><label for="refferBonus">Referral Commission in %</label><input type="number" id="refferBonus"></div>
                                 <div class="form-group"><label for="refferJoinBonus">Referral Join Bonus</label><input type="number" step="0.01" id="refferJoinBonus"></div>
                                 <div class="form-group"><label for="currency">Currency Symbol</label><input type="text" id="currency"></div>
+                                <!-- নতুন ফিল্ড শুরু -->
+                                <div class="form-group">
+                                    <label for="pointsPerCurrency">Points per <span id="currency-label">Currency</span></label>
+                                    <input type="number" id="pointsPerCurrency" placeholder="e.g., 100">
+                                </div>
+                                <!-- নতুন ফিল্ড শেষ -->
                             </div>
                         </div>
 
-                        <!-- ********** নতুন সেকশন শুরু ********** -->
                         <div class="section-card">
                             <div class="section-header"><i class="fas fa-tools"></i>Advanced Control</div>
                             <div class="section-body">
@@ -331,7 +384,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- ********** নতুন সেকশন শেষ ********** -->
 
                         <!-- Ad Networks Settings -->
                         <div class="section-card">
@@ -381,16 +433,31 @@
             <div class="modal-body">
                 <div class="user-details" id="user-details-content"></div>
                 <hr>
+                
+                <!-- নতুন মডাল কনটেন্ট শুরু -->
+                <h4>Manual Transaction</h4>
                 <div class="form-group">
                     <label for="points-to-add">Add/Subtract Points (e.g., 100 or -50)</label>
                     <input type="number" id="points-to-add" placeholder="0">
                 </div>
-                <button class="update-btn" id="save-user-changes-btn">Save Changes</button>
+                <div class="form-group">
+                    <label for="transaction-reason">Reason (will be shown in user's history)</label>
+                    <input type="text" id="transaction-reason" placeholder="e.g., Weekly bonus, refund...">
+                </div>
+                <button class="update-btn" id="save-user-changes-btn">Save Changes & Add to History</button>
+                <hr>
+
+                <h4>Send Notification</h4>
+                <div class="form-group">
+                    <label for="user-notification-message">Message for this user</label>
+                    <textarea id="user-notification-message" placeholder="This message will be shown to the user in the app..."></textarea>
+                </div>
+                <button class="update-btn" style="background-color: var(--blue);" onclick="window.sendUserNotification()">Send Notification</button>
+                <!-- নতুন মডাল কনটেন্ট শেষ -->
             </div>
         </div>
     </div>
     
-    <!-- ********** নতুন মডাল শুরু ********** -->
     <div class="modal-overlay" id="user-history-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -402,8 +469,6 @@
             </div>
         </div>
     </div>
-    <!-- ********** নতুন মডাল শেষ ********** -->
-
 
 <!-- Firebase SDKs -->
 <script type="module">
@@ -415,25 +480,21 @@
         storageBucket: "genius-earning-app.firebasestorage.app",
         messagingSenderId: "777003873345",
         appId: "1:777003873345:web:aa6f69db65beef2d2942c0",
-        measurementId: "G-L1FLL1FRMD"
+        measurementId: "G-L-L1FLL1FRMD"
     };
 
-    // Firebase মডিউল import করুন
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, onValue, update, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, set, onValue, update, get, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    // Firebase অ্যাপটি চালু করুন
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
     
-    // --- Database References ---
     const dbRef = ref(database);
     const configRef = ref(database, 'app/config'); 
     const usersRef = ref(database, 'app/users');
     const withdrawRequestsRef = ref(database, 'app/withdraw_requests');
 
     document.addEventListener('DOMContentLoaded', function () {
-        // --- Elements ---
         const menuToggle = document.getElementById('menuToggle');
         const sideNav = document.getElementById('sideNav');
         const overlay = document.getElementById('overlay');
@@ -441,7 +502,6 @@
         const pages = document.querySelectorAll('.page');
         const settingsForm = document.getElementById('settingsForm');
 
-        // --- App State & Default Config ---
         let appConfig = {};
         let allUsers = {};
         let allWithdrawals = {};
@@ -454,6 +514,8 @@
             appVersion: '1.0.0', announcement: '',
             
             // নতুন ডিফল্ট ভ্যালু যুক্ত করা হলো
+            botUsername: 'YourBotUsername',
+            pointsPerCurrency: 100,
             adWatchTimerSeconds: 30,
             hourlyAdsLimit: 25,
             minReferralsForWithdrawal: 3,
@@ -461,50 +523,39 @@
             
             adNetworksEnabled: true,
             adNetworks: [ { name: 'Monetag Ads', zoneId: '9704633', enabled: true } ],
-            
             dailyCheckinEnabled: true,
             dailyCheckinRewards: Array.from({ length: 10 }, (_, i) => ({ day: i + 1, reward: (i + 1) * 2 })),
-            
             tasksEnabled: true,
-            tasks: [
-                { id: Date.now() + 1, title: 'Join Telegram', link: 'https://t.me/your_channel', reward: 5, enabled: true }
-            ],
-            
+            tasks: [ { id: Date.now() + 1, title: 'Join Telegram', link: 'https://t.me/your_channel', reward: 5, enabled: true } ],
             withdrawalMethodsEnabled: true,
-            withdrawalMethods: [
-                { name: 'bKash', bn_name: 'বিকাশ', logo: 'bkash.png', enabled: true }
-            ]
+            withdrawalMethods: [ { name: 'bKash', bn_name: 'বিকাশ', logo: 'bkash.png', enabled: true } ]
         };
 
-        // --- Initialization ---
         function init() {
-            // Load App Config
             onValue(configRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    appConfig = { ...DEFAULT_CONFIG, ...data }; // Merge with defaults to prevent errors
+                    appConfig = { ...DEFAULT_CONFIG, ...data };
                 } else {
-                    console.log("Firebase-এ কোনো কনফিগারেশন পাওয়া যায়নি। ডিফল্ট কনফিগারেশন ব্যবহার এবং সেভ করা হচ্ছে।");
+                    console.log("No config found. Using and saving default config.");
                     appConfig = { ...DEFAULT_CONFIG };
                     set(configRef, appConfig);
                 }
                 renderAllSettings();
                 updateDashboardData();
-            }, (err) => console.error("Firebase থেকে config রিড করতে সমস্যা হয়েছে:", err));
+            }, (err) => console.error("Config read error:", err));
             
-            // Load Users Data
             onValue(usersRef, (snapshot) => {
                 allUsers = snapshot.val() || {};
                 renderUsers();
                 updateDashboardData();
-            }, (err) => console.error("Firebase থেকে users রিড করতে সমস্যা হয়েছে:", err));
+            }, (err) => console.error("Users read error:", err));
             
-            // Load Withdrawals Data
             onValue(withdrawRequestsRef, (snapshot) => {
                 allWithdrawals = snapshot.val() || {};
                 renderWithdrawals();
                 updateDashboardData();
-            }, (err) => console.error("Firebase থেকে withdrawals রিড করতে সমস্যা হয়েছে:", err));
+            }, (err) => console.error("Withdrawals read error:", err));
 
             menuToggle.addEventListener('click', toggleMenu);
             overlay.addEventListener('click', toggleMenu);
@@ -522,15 +573,18 @@
 
             document.getElementById('userSearch').addEventListener('input', renderUsers);
             document.getElementById('save-user-changes-btn').addEventListener('click', saveUserChanges);
+            document.getElementById('currency').addEventListener('input', (e) => {
+                document.getElementById('currency-label').textContent = e.target.value || 'Currency';
+            });
         }
         
         async function saveConfigToFirebase() {
             try {
                 await set(configRef, appConfig);
-                alert('সেটিংস সফলভাবে Firebase-এ আপডেট করা হয়েছে!');
+                alert('Settings updated successfully in Firebase!');
             } catch (error) {
-                console.error("Firebase-এ সেটিংস সেভ করতে সমস্যা হয়েছে: ", error);
-                alert('সেটিংস আপডেট করা যায়নি। কনসোল চেক করুন।');
+                console.error("Error saving settings to Firebase: ", error);
+                alert('Failed to update settings. Check console.');
             }
         }
         
@@ -545,11 +599,15 @@
             document.getElementById('currency').value = appConfig.currency;
             document.getElementById('minWithdraw').value = appConfig.minWithdraw;
             
-            // নতুন সেটিংস রেন্ডার করা
             document.getElementById('adWatchTimerSeconds').value = appConfig.adWatchTimerSeconds;
             document.getElementById('hourlyAdsLimit').value = appConfig.hourlyAdsLimit;
             document.getElementById('minReferralsForWithdrawal').value = appConfig.minReferralsForWithdrawal;
             document.getElementById('maintenanceMode').checked = appConfig.maintenanceMode;
+
+            // নতুন সেটিংস রেন্ডার করা
+            document.getElementById('botUsername').value = appConfig.botUsername || '';
+            document.getElementById('pointsPerCurrency').value = appConfig.pointsPerCurrency || 100;
+            document.getElementById('currency-label').textContent = appConfig.currency || 'Currency';
 
             renderAdNetworksSection();
             renderDailyCheckinSection();
@@ -569,13 +627,13 @@
 
             tbody.innerHTML = filteredWithdrawals.map(([id, req]) => `
                 <tr>
-                    <td>${req.userId || 'N/A'}</td>
-                    <td>${new Date(req.date).toLocaleString()}</td>
-                    <td>${req.method}</td>
-                    <td>${req.number}</td>
-                    <td>${req.amount} ${appConfig.currency || ''}</td>
-                    <td><span class="status-badge status-${req.status.toLowerCase()}">${req.status}</span></td>
-                    <td>
+                    <td data-label="User ID">${req.userId || 'N/A'}</td>
+                    <td data-label="Date">${new Date(req.date).toLocaleString()}</td>
+                    <td data-label="Method">${req.method}</td>
+                    <td data-label="Account">${req.number}</td>
+                    <td data-label="Amount">${req.amount} ${appConfig.currency || ''}</td>
+                    <td data-label="Status"><span class="status-badge status-${req.status.toLowerCase()}">${req.status}</span></td>
+                    <td data-label="Actions">
                         ${req.status === 'Pending' ? `
                             <button class="action-btn btn-approve" onclick="window.manageWithdrawal('${id}', 'Approved')">Approve</button>
                             <button class="action-btn btn-reject" onclick="window.manageWithdrawal('${id}', 'Rejected')">Reject</button>
@@ -598,7 +656,7 @@
                     const userSnapshot = await get(userRef);
                     if(userSnapshot.exists()){
                         const userData = userSnapshot.val();
-                        const pointsToRefund = requestData.amount * (appConfig.pointsPerBdt || 100);
+                        const pointsToRefund = requestData.amount * (appConfig.pointsPerCurrency || 100);
                         await update(userRef, {
                             balance: (userData.balance || 0) + pointsToRefund
                         });
@@ -634,15 +692,15 @@
 
             tbody.innerHTML = filteredUsers.map(([id, user]) => `
                 <tr>
-                    <td>${id}</td>
-                    <td>${(user.profile?.firstName || 'N/A')} ${(user.profile?.lastName || '')}</td>
-                    <td>${user.balance || 0}</td>
-                    <td>
+                    <td data-label="User ID">${id}</td>
+                    <td data-label="Name">${(user.profile?.firstName || 'N/A')} ${(user.profile?.lastName || '')}</td>
+                    <td data-label="Balance">${user.balance || 0}</td>
+                    <td data-label="Status">
                         <span class="status-badge ${user.isBlocked ? 'status-blocked' : 'status-approved'}">
                             ${user.isBlocked ? 'Blocked' : 'Active'}
                         </span>
                     </td>
-                    <td>
+                    <td data-label="Actions">
                         <button class="action-btn btn-view" onclick="window.openUserEditModal('${id}')">Edit</button>
                         <button class="action-btn btn-history" onclick="window.openUserHistoryModal('${id}')">History</button>
                         <button class="action-btn ${user.isBlocked ? 'btn-unblock' : 'btn-block'}" onclick="window.toggleUserBlock('${id}', ${user.isBlocked || false})">
@@ -668,6 +726,8 @@
                 <p><strong>Current Balance:</strong> ${user.balance || 0} points</p>
             `;
             document.getElementById('points-to-add').value = '';
+            document.getElementById('transaction-reason').value = '';
+            document.getElementById('user-notification-message').value = '';
             modal.classList.add('active');
         };
 
@@ -676,7 +736,6 @@
             currentEditingUserId = null;
         };
         
-        // ********** নতুন ফাংশন শুরু **********
         window.openUserHistoryModal = (userId) => {
             const user = allUsers[userId];
             if (!user) return;
@@ -690,7 +749,7 @@
                 contentDiv.innerHTML = '<p>No transaction history found for this user.</p>';
             } else {
                 const historyItems = Object.entries(history)
-                    .sort(([, a], [, b]) => new Date(b.date) - new Date(a.date)); // Sort by date descending
+                    .sort(([, a], [, b]) => new Date(b.date) - new Date(a.date));
                 
                 contentDiv.innerHTML = `<ul class="history-list">${historyItems.map(([key, item]) => {
                     const date = new Date(item.date).toLocaleString();
@@ -702,6 +761,7 @@
                         case 'referral': iconClass = 'fa-solid fa-users'; amountClass = 'positive'; amountPrefix = '+'; amountDisplay = `${item.amount} Points`; break;
                         case 'login': iconClass = 'fa-solid fa-calendar-check'; amountClass = 'positive'; amountPrefix = '+'; amountDisplay = `${item.amount} Points`; break;
                         case 'task': iconClass = 'fa-solid fa-tasks'; amountClass = 'positive'; amountPrefix = '+'; amountDisplay = `${item.amount} Points`; break;
+                        case 'manual': iconClass = 'fa-solid fa-user-pen'; amountClass = item.amount >= 0 ? 'positive' : 'negative'; amountPrefix = item.amount >= 0 ? '+' : ''; amountDisplay = `${item.amount} Points`; break;
                         default: iconClass = 'fa-solid fa-question'; amountClass = ''; amountPrefix = ''; amountDisplay = `${item.amount}`; break;
                     }
                     
@@ -722,26 +782,42 @@
         window.closeUserHistoryModal = () => {
             document.getElementById('user-history-modal').classList.remove('active');
         };
-        // ********** নতুন ফাংশন শেষ **********
-
 
         async function saveUserChanges() {
             if (!currentEditingUserId) return;
             const pointsStr = document.getElementById('points-to-add').value;
             const pointsToAdd = parseInt(pointsStr, 10);
             
-            if (isNaN(pointsToAdd)) {
-                return alert("Please enter a valid number for points.");
+            if (isNaN(pointsToAdd) || pointsToAdd === 0) {
+                return alert("Please enter a valid, non-zero number for points.");
             }
+
+            const reason = document.getElementById('transaction-reason').value.trim() || 'Admin Adjustment';
 
             try {
                 const userRef = ref(database, `app/users/${currentEditingUserId}`);
                 const userSnapshot = await get(userRef);
+
                 if (userSnapshot.exists()) {
                     const currentBalance = userSnapshot.val().balance || 0;
                     const newBalance = currentBalance + pointsToAdd;
-                    await update(userRef, { balance: newBalance });
-                    alert(`User balance updated successfully to ${newBalance} points.`);
+                    
+                    const updates = {};
+                    updates[`balance`] = newBalance;
+
+                    // Create transaction history entry
+                    const historyRef = ref(database, `app/users/${currentEditingUserId}/transactionHistory`);
+                    const newHistoryRef = push(historyRef);
+                    updates[`transactionHistory/${newHistoryRef.key}`] = {
+                        type: 'manual',
+                        amount: pointsToAdd,
+                        title: reason,
+                        date: new Date().toISOString()
+                    };
+                    
+                    await update(userRef, updates);
+
+                    alert(`User balance updated to ${newBalance} points. Transaction added to history.`);
                     closeUserEditModal();
                 }
             } catch (error) {
@@ -749,6 +825,32 @@
                 alert("Failed to update balance.");
             }
         }
+
+        // নতুন ফাংশন: ব্যবহারকারীকে নোটিফিকেশন পাঠানো
+        window.sendUserNotification = async () => {
+            if (!currentEditingUserId) return;
+            const message = document.getElementById('user-notification-message').value.trim();
+            if (!message) {
+                return alert("Notification message cannot be empty.");
+            }
+
+            try {
+                const notificationsRef = ref(database, `app/users/${currentEditingUserId}/notifications`);
+                const newNotificationRef = push(notificationsRef);
+                await set(newNotificationRef, {
+                    message: message,
+                    date: new Date().toISOString(),
+                    read: false
+                });
+
+                alert("Notification sent successfully!");
+                document.getElementById('user-notification-message').value = '';
+
+            } catch(error) {
+                console.error("Error sending notification:", error);
+                alert("Failed to send notification. Check console for errors.");
+            }
+        };
 
         window.toggleUserBlock = async (userId, isCurrentlyBlocked) => {
             const action = isCurrentlyBlocked ? 'unblock' : 'block';
@@ -766,7 +868,7 @@
 
         function renderSection(containerId, list, config) {
             const container = document.getElementById(containerId);
-            const listHtml = list.map(config.itemRenderer).join('');
+            const listHtml = (list || []).map(config.itemRenderer).join('');
             
             container.innerHTML = `
                 <div class="section-toggle">
@@ -800,7 +902,7 @@
                         <label class="switch"><input type="checkbox" data-type="adNetworkItemEnabled" data-index="${index}" ${item.enabled ? 'checked' : ''}><span class="slider"></span></label>
                         <button type="button" class="btn-remove" onclick="removeAdNetwork(${index})">&times;</button>
                     </div>`,
-                addFunction: 'addAdNetwork()',
+                addFunction: 'window.addAdNetwork()',
                 addButtonLabel: 'Add Ad Network'
             });
         }
@@ -850,7 +952,7 @@
                         <label class="switch"><input type="checkbox" data-type="taskItemEnabled" data-index="${index}" ${item.enabled ? 'checked' : ''}><span class="slider"></span></label>
                         <button type="button" class="btn-remove" onclick="removeTask(${index})">&times;</button>
                     </div>`,
-                addFunction: 'addTask()',
+                addFunction: 'window.addTask()',
                 addButtonLabel: 'Add Task'
             });
         }
@@ -871,7 +973,7 @@
                         <label class="switch"><input type="checkbox" data-type="methodItemEnabled" data-index="${index}" ${item.enabled ? 'checked' : ''}><span class="slider"></span></label>
                         <button type="button" class="btn-remove" onclick="removeMethod(${index})">&times;</button>
                     </div>`,
-                addFunction: 'addMethod()',
+                addFunction: 'window.addMethod()',
                 addButtonLabel: 'Add Method'
             });
         }
@@ -890,12 +992,15 @@
             appConfig.minWithdraw = parseFloat(document.getElementById('minWithdraw').value);
 
             // নতুন সেটিংস সেভ করা
+            appConfig.botUsername = document.getElementById('botUsername').value;
+            appConfig.pointsPerCurrency = parseInt(document.getElementById('pointsPerCurrency').value);
             appConfig.adWatchTimerSeconds = parseInt(document.getElementById('adWatchTimerSeconds').value);
             appConfig.hourlyAdsLimit = parseInt(document.getElementById('hourlyAdsLimit').value);
             appConfig.minReferralsForWithdrawal = parseInt(document.getElementById('minReferralsForWithdrawal').value);
             appConfig.maintenanceMode = document.getElementById('maintenanceMode').checked;
 
             appConfig.adNetworksEnabled = document.getElementById('adNetworksEnabled').checked;
+            appConfig.adNetworks = appConfig.adNetworks || [];
             appConfig.adNetworks.forEach((item, index) => {
                 item.name = document.querySelector(`[data-type="adNetworkName"][data-index="${index}"]`).value;
                 item.zoneId = document.querySelector(`[data-type="adNetworkZoneId"][data-index="${index}"]`).value;
@@ -903,11 +1008,13 @@
             });
 
             appConfig.dailyCheckinEnabled = document.getElementById('dailyCheckinEnabled').checked;
+            appConfig.dailyCheckinRewards = appConfig.dailyCheckinRewards || [];
             appConfig.dailyCheckinRewards.forEach((item, index) => {
                 item.reward = parseFloat(document.querySelector(`[data-type="checkinReward"][data-index="${index}"]`).value);
             });
 
             appConfig.tasksEnabled = document.getElementById('tasksEnabled').checked;
+            appConfig.tasks = appConfig.tasks || [];
             appConfig.tasks.forEach((item, index) => {
                 item.title = document.querySelector(`[data-type="taskTitle"][data-index="${index}"]`).value;
                 item.link = document.querySelector(`[data-type="taskLink"][data-index="${index}"]`).value;
@@ -916,6 +1023,7 @@
             });
             
             appConfig.withdrawalMethodsEnabled = document.getElementById('withdrawalMethodsEnabled').checked;
+            appConfig.withdrawalMethods = appConfig.withdrawalMethods || [];
             appConfig.withdrawalMethods.forEach((item, index) => {
                 item.name = document.querySelector(`[data-type="methodName"][data-index="${index}"]`).value;
                 item.bn_name = document.querySelector(`[data-type="methodBnName"][data-index="${index}"]`).value;
@@ -941,15 +1049,12 @@
         }
         function updateDashboardData() {
             const currency = appConfig.currency || 'BDT';
-            const pointsPerBdt = appConfig.pointsPerBdt || 100;
+            const pointsPerCurrency = appConfig.pointsPerCurrency || 100;
             const pendingWithdrawals = Object.values(allWithdrawals).filter(w => w.status === 'Pending');
             const approvedWithdrawals = Object.values(allWithdrawals).filter(w => w.status === 'Approved');
             const totalApprovedAmount = approvedWithdrawals.reduce((sum, w) => sum + (w.amount || 0), 0);
             
-            let totalEarningsPoints = 0;
-            let totalReferrals = 0;
-            let totalAdsWatched = 0;
-            let totalCommissionPoints = 0;
+            let totalEarningsPoints = 0; let totalReferrals = 0; let totalAdsWatched = 0; let totalCommissionPoints = 0;
 
             Object.values(allUsers).forEach(user => {
                 totalEarningsPoints += user.totalEarnings || 0;
@@ -957,8 +1062,8 @@
                 totalAdsWatched += user.totalAdsWatched || 0;
                 totalCommissionPoints += user.totalReferralCommission || 0;
             });
-            const totalEarningsBdt = totalEarningsPoints / pointsPerBdt;
-            const totalCommissionBdt = totalCommissionPoints / pointsPerBdt;
+            const totalEarningsBdt = totalEarningsPoints / pointsPerCurrency;
+            const totalCommissionBdt = totalCommissionPoints / pointsPerCurrency;
 
             document.getElementById('db-total-users').textContent = Object.keys(allUsers).length;
             document.getElementById('db-ads-watched').textContent = totalAdsWatched;
