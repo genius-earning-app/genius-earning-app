@@ -23,6 +23,9 @@
       --status-referral: #17a2b8;
       --status-login: #fd7e14;
       --status-task: #007bff;
+      /* নতুন স্টাইল ভ্যারিয়েবল শুরু */
+      --status-manual: #8e44ad;
+      /* নতুন স্টাইল ভ্যারিয়েবল শেষ */
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -260,6 +263,9 @@
     .history-item.referral .icon-wrapper { background-color: rgba(23, 162, 184, 0.1); color: var(--status-referral); }
     .history-item.login .icon-wrapper { background-color: rgba(253, 126, 20, 0.1); color: var(--status-login); }
     .history-item.task .icon-wrapper { background-color: rgba(0, 123, 255, 0.1); color: var(--status-task); }
+    /* নতুন স্টাইল শুরু */
+    .history-item.manual .icon-wrapper { background-color: rgba(142, 68, 173, 0.1); color: var(--status-manual); }
+    /* নতুন স্টাইল শেষ */
     .history-item-info { flex-grow: 1; display: flex; flex-direction: column; }
     .history-item-info .title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
     .history-item-info .details { font-size: 13px; color: var(--text-muted-color); }
@@ -406,7 +412,6 @@
         color: var(--text-muted-color);
         padding-left: 10px;
     }
-    /* --- নতুন স্টাইল --- */
     .system-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: var(--background-color); display: flex; flex-direction: column;
@@ -462,13 +467,11 @@
       <h2>Update Required</h2>
       <p>A new version of the app is available. Please restart the bot to get the latest updates.</p>
   </div>
-  <!-- ********** নতুন HTML শুরু ********** -->
   <div class="system-overlay" id="maintenance-overlay" style="display: none;">
       <i class="fa-solid fa-screwdriver-wrench" style="color: var(--status-task);"></i>
       <h2>Under Maintenance</h2>
       <p>The app is currently undergoing maintenance. Please check back later.</p>
   </div>
-  <!-- ********** নতুন HTML শেষ ********** -->
 
   <div class="container" style="display: none;">
     <div id="announcement-banner-container"></div>
@@ -672,7 +675,7 @@
 <script type="module">
     // --- Firebase SDKs ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, onValue, set, get, update, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, onValue, set, get, update, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     // --- Firebase Configuration ---
     const firebaseConfig = {
@@ -682,7 +685,7 @@
     storageBucket: "genius-earning-app.firebasestorage.app",
     messagingSenderId: "777003873345",
     appId: "1:777003873345:web:aa6f69db65beef2d2942c0",
-    measurementId: "G-L1FLL1FRMD"
+    measurementId: "G-L-L1FLL1FRMD"
     };
 
     // --- Firebase Initialization ---
@@ -702,12 +705,6 @@
     let isConfigLoaded = false;
     let isUserLoaded = false;
     
-    // --- Constants ---
-    const POINTS_PER_BDT = 100;
-    // নিচে থাকা ভ্যারিয়েবলগুলো এখন আর ধ্রুবক (const) নয়, কারণ এগুলো Firebase থেকে লোড হবে।
-    // const hourlyAdsLimit = 25; 
-    // const minReferralsForWithdrawal = 3; 
-
     document.addEventListener('DOMContentLoaded', () => { initApp(); });
 
     async function initApp() {
@@ -732,19 +729,15 @@
                 appConfig = snapshot.val();
                 console.log("Firebase config loaded:", appConfig);
 
-                // ********** নতুন পরিবর্তন শুরু **********
-                // মেইনটেন্যান্স মোড চেক করা
                 if (appConfig.maintenanceMode) {
                     document.getElementById('loading-overlay').style.display = 'none';
                     document.getElementById('maintenance-overlay').style.display = 'flex';
-                    // মেইনটেন্যান্স মোড চালু থাকলে আর কিছু লোড হবে না
                     return; 
                 }
-                // ********** নতুন পরিবর্তন শেষ **********
 
                 if (!isConfigLoaded) {
                     isConfigLoaded = true;
-                    if (checkVersionAndNotice()) return; // Stop if update needed
+                    if (checkVersionAndNotice()) return;
                     initializeUser();
                 }
                 updateDynamicElements();
@@ -791,11 +784,33 @@
         });
     }
 
+    // নতুন ফাংশন শুরু
+    function listenForNotifications() {
+        if (!tgUser) return;
+        const notificationsRef = ref(database, `app/users/${tgUser.id}/notifications`);
+        
+        onChildAdded(notificationsRef, (snapshot) => {
+            const notification = snapshot.val();
+            const notificationId = snapshot.key;
+
+            if (notification && !notification.read) {
+                // ব্যবহারকারীকে নোটিফিকেশন দেখানো
+                alert(`Admin Notification:\n\n${notification.message}`);
+                
+                // নোটিফিকেশনটি Firebase-এ 'read' হিসেবে মার্ক করা
+                const notificationToUpdateRef = ref(database, `app/users/${tgUser.id}/notifications/${notificationId}`);
+                update(notificationToUpdateRef, { read: true });
+            }
+        });
+    }
+    // নতুন ফাংশন শেষ
+
     function initializeAppUI() {
         loadTelegramUser();
         showView('home-view');
         initializeInAppAds();
         initializeEventListeners();
+        listenForNotifications(); // নতুন নোটিফিকেশন লিসেনার চালু করা
         document.getElementById('loading-overlay').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('loading-overlay').style.display = 'none';
@@ -896,8 +911,9 @@
         if (!isConfigLoaded || !isUserLoaded) return;
         
         const currencySymbol = appConfig.currency || 'BDT';
+        const pointsPerCurrency = appConfig.pointsPerCurrency || 100; // পরিবর্তন
         const pointsBalance = userData.balance || 0;
-        const balanceInBdt = pointsBalance / POINTS_PER_BDT;
+        const balanceInBdt = pointsBalance / pointsPerCurrency; // পরিবর্তন
 
         document.getElementById('header-balance').textContent = `${currencySymbol} ${balanceInBdt.toFixed(2)}`;
         document.getElementById('home-total-earnings').innerHTML = `<span class="points-value">${pointsBalance} Points</span><span class="bdt-value">${currencySymbol} ${balanceInBdt.toFixed(2)}</span>`;
@@ -907,9 +923,7 @@
         document.getElementById('home-total-commission').textContent = `${userData.totalReferralCommission || 0} Points`;
         
         const dailyAdsLimit = appConfig.adsLimit || 250;
-        // ********** নতুন পরিবর্তন শুরু **********
-        const hourlyLimit = appConfig.hourlyAdsLimit || 25; // অ্যাডমিন প্যানেল থেকে ঘণ্টাভিত্তিক সীমা লোড করা
-        // ********** নতুন পরিবর্তন শেষ **********
+        const hourlyLimit = appConfig.hourlyAdsLimit || 25;
 
         const adTracking = userData.adTracking?.monetag || { dailyCount: 0, hourlyCount: 0 };
         document.querySelectorAll('.ad-network-card').forEach(card => {
@@ -918,12 +932,12 @@
                 card.querySelector(`.tasks-completed-daily`).textContent = adTracking.dailyCount;
                 card.querySelector(`.tasks-remaining-daily`).textContent = dailyAdsLimit - adTracking.dailyCount;
                 card.querySelector(`.progress-bar-inner`).style.width = `${(adTracking.dailyCount / dailyAdsLimit) * 100}%`;
-                card.querySelector(`.hourly-limit-value`).textContent = `${adTracking.hourlyCount}/${hourlyLimit}`; // এখানে hourlyLimit ব্যবহৃত হয়েছে
+                card.querySelector(`.hourly-limit-value`).textContent = `${adTracking.hourlyCount}/${hourlyLimit}`;
                 card.querySelector(`.daily-limit-value`).textContent = `${adTracking.dailyCount}/${dailyAdsLimit}`;
 
                 if (adTracking.dailyCount >= dailyAdsLimit) {
                     watchButton.disabled = true; watchButton.innerHTML = `<i class="fa-solid fa-check"></i> Daily Limit`;
-                } else if (adTracking.hourlyCount >= hourlyLimit) { // এখানে hourlyLimit ব্যবহৃত হয়েছে
+                } else if (adTracking.hourlyCount >= hourlyLimit) {
                     watchButton.disabled = true; watchButton.innerHTML = `<i class="fa-solid fa-clock"></i> Hourly Limit`;
                 } else {
                     watchButton.disabled = false; watchButton.innerHTML = `<i class="fa-solid fa-play-circle"></i> Watch Ad & Earn`;
@@ -933,7 +947,7 @@
         
         document.getElementById('refer-today-commission').textContent = `${userData.dailyStats?.referralCommission || 0} Points`;
         document.getElementById('profile-balance').innerHTML = `${pointsBalance} Points <span class="bdt-value">${currencySymbol} ${balanceInBdt.toFixed(2)}</span>`;
-        document.getElementById('profile-total-earnings').innerHTML = `${userData.totalEarnings || 0} Points <span class="bdt-value">${((userData.totalEarnings || 0) / POINTS_PER_BDT).toFixed(2)} ${currencySymbol}</span>`;
+        document.getElementById('profile-total-earnings').innerHTML = `${userData.totalEarnings || 0} Points <span class="bdt-value">${((userData.totalEarnings || 0) / pointsPerCurrency).toFixed(2)} ${currencySymbol}</span>`; // পরিবর্তন
         document.getElementById('profile-ads-watched').textContent = userData.totalAdsWatched || 0;
         document.getElementById('profile-referrals').textContent = userData.referralsList ? Object.keys(userData.referralsList).length : 0;
         document.getElementById('profile-total-commission').textContent = `${userData.totalReferralCommission || 0} Points`;
@@ -950,13 +964,13 @@
             document.getElementById('profile-name').textContent = `${firstName || ''} ${lastName || ''}`.trim();
             document.getElementById('profile-username').textContent = username ? `@${username}` : 'No username';
             document.getElementById('profile-avatar').src = photoUrl || `https://i.pravatar.cc/150?u=${tgUser.id}`;
-            const botUsername = "Genius_Ads_Earning_Bot"; // Replace with your bot's username
+            const botUsername = appConfig.botUsername || "YourBotUsername"; // পরিবর্তন
             document.getElementById('referral-link-input').value = `https://t.me/${botUsername}?start=${tgUser.id}`;
         }
     }
 
     async function grantReward(adNetwork) {
-        const rewardPoints = (appConfig.adsReward || 1) * POINTS_PER_BDT;
+        const rewardPoints = (appConfig.adsReward || 1) * (appConfig.pointsPerCurrency || 100); // পরিবর্তন
         const adTracking = userData.adTracking?.monetag || { dailyCount: 0, hourlyCount: 0 };
 
         const updates = {
@@ -978,14 +992,10 @@
         if (window.Telegram?.WebApp?.HapticFeedback) Telegram.WebApp.HapticFeedback.notificationOccurred('success');
     }
     
-    // --- All Earning Functions ---
-
     window.startAdCycleFor = (network) => {
-        // ********** নতুন পরিবর্তন শুরু **********
         const dailyAdsLimit = appConfig.adsLimit || 250;
         const hourlyLimit = appConfig.hourlyAdsLimit || 25;
         const adTimerSeconds = appConfig.adWatchTimerSeconds || 30;
-        // ********** নতুন পরিবর্তন শেষ **********
 
         const adTracking = userData.adTracking?.monetag || { dailyCount: 0, hourlyCount: 0 };
         if (adTracking.dailyCount >= dailyAdsLimit || adTracking.hourlyCount >= hourlyLimit) return;
@@ -996,7 +1006,7 @@
         show_9794133().catch(e => console.error("Monetag Ad SDK error:", e));
 
         overlay.style.display = 'flex';
-        let countdown = adTimerSeconds; // ডাইনামিক টাইমার ব্যবহার
+        let countdown = adTimerSeconds;
         overlayContent.innerHTML = `<div class="icon"><i class="fa-solid fa-hourglass-half"></i></div><div>${countdown}</div>`;
 
         const intervalId = setInterval(() => {
@@ -1008,10 +1018,10 @@
         setTimeout(() => {
             clearInterval(intervalId);
             grantReward(network);
-            const rewardPoints = (appConfig.adsReward || 1) * POINTS_PER_BDT;
+            const rewardPoints = (appConfig.adsReward || 1) * (appConfig.pointsPerCurrency || 100); // পরিবর্তন
             overlayContent.innerHTML = `<div class="icon" style="color: var(--status-success);"><i class="fa-solid fa-check-circle"></i></div><div>+${rewardPoints} Points!</div>`;
             setTimeout(() => { overlay.style.display = 'none'; }, 2500);
-        }, adTimerSeconds * 1000); // ডাইনামিক টাইমারের সময় ব্যবহার
+        }, adTimerSeconds * 1000);
     };
 
     function renderCheckinDays() {
@@ -1025,7 +1035,7 @@
         let isClaimable = false, claimableReward = 0;
 
         timelineContainer.innerHTML = checkinRewards.map((dayInfo, index) => {
-            const reward = dayInfo.reward * POINTS_PER_BDT;
+            const reward = dayInfo.reward * (appConfig.pointsPerCurrency || 100); // পরিবর্তন
             let status = 'locked', icon = '🎁';
             if (index < streak) { status = 'claimed'; icon = '<i class="fa-solid fa-check"></i>'; }
             else if (index === streak && canClaimToday) {
@@ -1055,7 +1065,7 @@
                 const dayInfo = checkinRewards[streak];
                 if (!dayInfo) return;
                 
-                const reward = dayInfo.reward * POINTS_PER_BDT;
+                const reward = dayInfo.reward * (appConfig.pointsPerCurrency || 100); // পরিবর্তন
                 const newStreak = streak + 1;
                 const newTimestamp = new Date().getTime();
 
@@ -1082,9 +1092,7 @@
         const container = document.getElementById('ad-networks-container');
         if (!container || !appConfig.adNetworksEnabled || !appConfig.adNetworks) return container.innerHTML = "";
         
-        // ********** নতুন পরিবর্তন শুরু **********
-        const hourlyLimit = appConfig.hourlyAdsLimit || 25; // এখানেও লোড করা হলো, যেন রেন্ডারিং সঠিক হয়
-        // ********** নতুন পরিবর্তন শেষ **********
+        const hourlyLimit = appConfig.hourlyAdsLimit || 25;
         
         container.innerHTML = appConfig.adNetworks.filter(n => n.enabled).map(network => `
             <div class="ad-network-card">
@@ -1126,7 +1134,8 @@
             } else {
                 buttonHTML = `<button class="task-button" onclick="window.handleTaskClick(${task.id}, false)">Join & Claim</button>`;
             }
-            return `<div class="card task-card"><div class="task-info"><i class="fa-solid fa-tasks task-icon"></i><div><h4>${task.title}</h4><p>${task.reward * POINTS_PER_BDT} points reward</p></div></div>${buttonHTML}</div>`;
+            const pointsReward = task.reward * (appConfig.pointsPerCurrency || 100); // পরিবর্তন
+            return `<div class="card task-card"><div class="task-info"><i class="fa-solid fa-tasks task-icon"></i><div><h4>${task.title}</h4><p>${pointsReward} points reward</p></div></div>${buttonHTML}</div>`;
         }).join('');
     }
 
@@ -1135,7 +1144,7 @@
         if (!task || userData.tasksState?.[taskId]?.completed) return;
 
         if (isClaiming) {
-            const reward = task.reward * POINTS_PER_BDT;
+            const reward = task.reward * (appConfig.pointsPerCurrency || 100); // পরিবর্তন
             const updates = {
                 'balance': (userData.balance || 0) + reward,
                 'totalEarnings': (userData.totalEarnings || 0) + reward,
@@ -1158,7 +1167,6 @@
         }
     };
 
-    // --- Withdrawal Functions ---
     window.openWithdrawModal = () => {
         if (!appConfig.withdrawalMethodsEnabled) return alert("Withdrawals are temporarily disabled.");
         const container = document.getElementById('payment-method-selector-container');
@@ -1179,14 +1187,14 @@
     window.requestWithdraw = async () => {
         const minWithdraw = appConfig.minWithdraw || 500;
         const currencySymbol = appConfig.currency || 'BDT';
-        // ********** নতুন পরিবর্তন শুরু **********
+        const pointsPerCurrency = appConfig.pointsPerCurrency || 100; // পরিবর্তন
         const minReferrals = appConfig.minReferralsForWithdrawal || 3;
+
         if ((userData.referralsList ? Object.keys(userData.referralsList).length : 0) < minReferrals) {
             return alert(`Minimum ${minReferrals} referrals required for withdrawal.`);
         }
-        // ********** নতুন পরিবর্তন শেষ **********
         
-        const balanceInBdt = (userData.balance || 0) / POINTS_PER_BDT;
+        const balanceInBdt = (userData.balance || 0) / pointsPerCurrency; // পরিবর্তন
         if (balanceInBdt < minWithdraw) return alert(`Minimum ${currencySymbol} ${minWithdraw.toFixed(2)} balance required.`);
         
         const selectedMethodEl = document.querySelector('input[name="payment-method"]:checked');
@@ -1198,7 +1206,7 @@
         if (amountInBdt < minWithdraw) return alert(`Minimum withdrawal is ${currencySymbol} ${minWithdraw.toFixed(2)}.`);
         if (amountInBdt > balanceInBdt) return alert("Insufficient balance.");
 
-        const amountInPoints = amountInBdt * POINTS_PER_BDT;
+        const amountInPoints = amountInBdt * pointsPerCurrency; // পরিবর্তন
         
         const newRequestRef = push(withdrawRequestsRef);
         const newRequest = { userId: tgUser.id, method, number, amount: amountInBdt, date: new Date().toISOString(), status: 'Pending' };
@@ -1212,7 +1220,6 @@
         alert("Withdrawal request submitted successfully.");
     };
     
-    // --- History and Referrals ---
     async function renderHistory() {
         const container = document.getElementById('history-list-container');
         const currencySymbol = appConfig.currency || 'BDT';
@@ -1222,22 +1229,39 @@
 
         container.innerHTML = historyItems.map(([key, item]) => {
             let dateStr = new Date(item.date).toLocaleString('en-GB');
-            let iconClass;
+            let iconClass, itemHTML;
+            
             switch(item.type) {
                 case 'earning': iconClass = 'fa-solid fa-play'; break;
                 case 'withdrawal': iconClass = 'fa-solid fa-arrow-down'; break;
                 case 'referral': iconClass = 'fa-solid fa-users'; break;
                 case 'login': iconClass = 'fa-solid fa-calendar-check'; break;
                 case 'task': iconClass = 'fa-solid fa-tasks'; break;
+                case 'manual': iconClass = 'fa-solid fa-user-pen'; break; // নতুন কেস
                 default: iconClass = 'fa-solid fa-question'; break;
             }
 
             if (item.type === 'withdrawal') {
-                return `<div class="history-item withdrawal"><div class="icon-wrapper"><i class="${iconClass}"></i></div><div class="history-item-info"><span class="title">Withdraw via ${item.method}</span><span class="details">${item.number} &bull; ${dateStr}</span></div><div class="amount-wrapper"><span class="amount">-${currencySymbol} ${item.amount.toFixed(2)}</span><span class="status status-${item.status.toLowerCase()}">${item.status}</span></div></div>`;
+                itemHTML = `<div class="history-item withdrawal"><div class="icon-wrapper"><i class="${iconClass}"></i></div><div class="history-item-info"><span class="title">Withdraw via ${item.method}</span><span class="details">${item.number} &bull; ${dateStr}</span></div><div class="amount-wrapper"><span class="amount">-${currencySymbol} ${item.amount.toFixed(2)}</span><span class="status status-${item.status.toLowerCase()}">${item.status}</span></div></div>`;
+            } else {
+                let amountStr = item.amount || 0;
+                let amountPrefix = amountStr >= 0 ? '+' : '';
+                let amountColorClass = amountStr >= 0 ? 'var(--status-success)' : 'var(--status-failed)';
+                
+                itemHTML = `
+                <div class="history-item ${item.type}">
+                    <div class="icon-wrapper"><i class="${iconClass}"></i></div>
+                    <div class="history-item-info">
+                        <span class="title">${item.title}</span>
+                        <span class="details">${dateStr}</span>
+                    </div>
+                    <div class="amount-wrapper">
+                        <span class="amount" style="color: ${amountColorClass};">${amountPrefix}${amountStr} Points</span>
+                    </div>
+                </div>`;
             }
-            
-            let amountStr = item.amount || 0;
-            return `<div class="history-item ${item.type}"><div class="icon-wrapper"><i class="${iconClass}"></i></div><div class="history-item-info"><span class="title">${item.title}</span><span class="details">${dateStr}</span></div><div class="amount-wrapper"><span class="amount">+${amountStr} Points</span></div></div>`;
+            return itemHTML;
+
         }).join('');
         
         const userWithdrawals = Object.entries(await get(withdrawRequestsRef).then(s=>s.val()||{})).filter(([,w])=>w.userId === tgUser.id);
@@ -1253,7 +1277,15 @@
 
     function renderReferralsList() { /* This function can be implemented to show user's referrals list */ }
     window.copyReferralLink = () => { navigator.clipboard.writeText(document.getElementById('referral-link-input').value).then(() => alert('Link copied!')); };
-    window.shareOnSocial = (platform) => { /* This function remains unchanged */ };
+    window.shareOnSocial = (platform) => { 
+        const link = document.getElementById('referral-link-input').value;
+        const text = encodeURIComponent("Join me on this awesome app and earn rewards!");
+        let url = '';
+        if (platform === 'telegram') url = `https://t.me/share/url?url=${link}&text=${text}`;
+        if (platform === 'whatsapp') url = `https://api.whatsapp.com/send?text=${text} ${link}`;
+        if (platform === 'twitter') url = `https://twitter.com/intent/tweet?text=${text}&url=${link}`;
+        if (url) window.open(url, '_blank');
+    };
 
 </script>
 </body>
